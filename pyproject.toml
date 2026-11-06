@@ -6,13 +6,21 @@ readme = "README.md"
 requires-python = "==3.13.*"
 license = { text = "Proprietary - all rights reserved by the repository owner" }
 dependencies = [
+    "argon2-cffi>=25.1.0",
+    "cryptography>=50.0.2",
+    "fastapi>=0.162.0",
+    "keyring>=25.7.0",
     "nautilus-trader==1.231.0",
     "pandas-market-calendars>=5",
+    "pyotp>=2.10.0",
+    "segno>=1.6.6",
     "tzdata>=2025.2",  # IANA time-zone data; Windows has none built in (CT dates, CME sessions)
+    "uvicorn>=0.32",
 ]
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "mypy>=1.18",
     "pandas-stubs>=3.1.0.261029",
     "pip-audit>=2.9",
@@ -42,7 +50,7 @@ max-args = 8
 max-positional-args = 6
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "S603", "S607", "PLR2004"]
+"tests/**" = ["S101", "S105", "S106", "S603", "S607", "PLR2004", "SLF001"]
 # HTML templates: long markup lines read better unwrapped.
 "engine/report.py" = ["E501"]
 
@@ -71,4 +79,6 @@ filterwarnings = [
     # pandas 3 deprecation warnings raised inside NautilusTrader's compiled code (not ours).
     "ignore::DeprecationWarning:nautilus_trader",
     "ignore:.*is deprecated and will be removed in a future version.*",
+    # Starlette's TestClient advertises httpx2; httpx is the supported client today.
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated",
 ]

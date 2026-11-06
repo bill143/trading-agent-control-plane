@@ -259,8 +259,8 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
 <!-- BUILDER STATUS: the AI builder edits ONLY the JSON inside this block. Keys: steps use Tab 6 IDs (e.g. "1.04"), checks use Tab 3 IDs (e.g. "C1.04"), gates use phase numbers. -->
 <script id="build-status" type="application/json">
 {
-  "updated": "2026-11-06 10:57 CT",
-  "current_step": "1.15",
+  "updated": "2026-11-06 11:06 CT",
+  "current_step": "1.20",
   "steps": {
     "0.01": {
       "status": "blocked",
@@ -386,6 +386,36 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "status": "done",
       "date": "2026-11-06 10:57 CT",
       "proof": "engine/backtest.py runner (CLI: python -m engine.backtest) + engine/metrics.py + engine/report.py: result.json + self-contained report.html (profit factor, expectancy, max DD, Sharpe, win rate, avg win/loss, trade count, per-symbol table, refusals by rule, equity curve, sample-data banner); trade P&L reconciles to the simulated account to the cent; tests/test_backtest.py 7 passed; full sample run 669 trades, net $179.87, PF 1.07",
+      "note": ""
+    },
+    "1.15": {
+      "status": "done",
+      "date": "2026-11-06 11:06 CT",
+      "proof": "api/server.py FastAPI control API: HTTPS-only on 127.0.0.1 with generated ECDSA cert (api/tls.py, SHA-256 fingerprint + SPKI pin for the desktop webview), bearer sessions on every endpoint but health/first-run setup, security headers, login rate limit; read endpoints (state, decisions, trades, settings, backtests, audit, users, secret names) + start/stop/pause/resume/speed/mode/kill/reset/fault commands; tests/test_api.py 16 passed incl. real uvicorn TLS test (plain HTTP and untrusted CA refused)",
+      "note": ""
+    },
+    "1.16": {
+      "status": "done",
+      "date": "2026-11-06 11:06 CT",
+      "proof": "risk/authority.py roles Owner/Approver/Viewer + AI and system principal kinds; enforced in service, store and API; tests/test_api.py::test_roles_enforced (viewer read-only, approver kill-only, owner full) passed",
+      "note": ""
+    },
+    "1.17": {
+      "status": "done",
+      "date": "2026-11-06 11:06 CT",
+      "proof": "api/users.py: Argon2id passwords (min 12, no username), RFC 6238 two-factor with QR enrollment, seeds in the vault, 15-min idle + 12-h absolute session timeout, lockout after 5 failures for 15 min, uniform error messages; tests: login_requires_password_and_code, lockout_after_failed_attempts, session_idle_timeout_and_logout passed",
+      "note": ""
+    },
+    "1.18": {
+      "status": "done",
+      "date": "2026-11-06 11:06 CT",
+      "proof": "api/vault.py AES-256-GCM vault, key wrapped by Windows DPAPI (CryptProtectData) on the PC, OS keyring or injected key elsewhere; SecretValue masks repr/str; owner-only, audited by name; tests/test_vault.py 9 passed (+ DPAPI round trip on Windows CI); API returns names only",
+      "note": "On the Phase 7 server the vault key is injected from the cloud secret manager at start-up (StaticKeyProvider); the server-side integration is part of step 7.06."
+    },
+    "1.19": {
+      "status": "done",
+      "date": "2026-11-06 11:06 CT",
+      "proof": "api/audit.py append-only SHA-256 hash-chained JSONL with fsync, verify() detects edit/delete/reorder, refuses secret-named fields; logins, failures, lockouts, commands, setting changes, kill-switch events, orders and fills recorded; tests/test_risk.py audit tests + test_audit_log_covers_logins_commands_settings passed",
       "note": ""
     }
   },
