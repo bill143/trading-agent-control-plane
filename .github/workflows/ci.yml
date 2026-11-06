@@ -39,8 +39,8 @@ jobs:
         run: uv run ruff format --check .
       - name: Type check
         run: uv run mypy
-      - name: Unit tests
-        run: uv run pytest
+      - name: Unit tests (risk layer coverage must stay at or above 90%)
+        run: uv run pytest --cov=risk --cov-report=term --cov-fail-under=90
       - name: Build status valid and in sync
         run: uv run python -m tools.build_status validate
 
