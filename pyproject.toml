@@ -7,6 +7,7 @@ requires-python = "==3.13.*"
 license = { text = "Proprietary - all rights reserved by the repository owner" }
 dependencies = [
     "nautilus-trader==1.231.0",
+    "pandas-market-calendars>=5",
     "tzdata>=2025.2",  # IANA time-zone data; Windows has none built in (CT dates, CME sessions)
 ]
 
@@ -48,7 +49,7 @@ files = ["engine", "risk", "strategies", "api", "app", "tools", "tests"]
 [[tool.mypy.overrides]]
 # NautilusTrader is compiled (Cython/Rust) and ships no type stubs. Our own logic lives in typed
 # pure-Python modules; only the thin Nautilus adapter modules touch these types.
-module = ["nautilus_trader.*"]
+module = ["nautilus_trader.*", "pandas_market_calendars.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

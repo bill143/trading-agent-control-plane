@@ -259,7 +259,7 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
 <!-- BUILDER STATUS: the AI builder edits ONLY the JSON inside this block. Keys: steps use Tab 6 IDs (e.g. "1.04"), checks use Tab 3 IDs (e.g. "C1.04"), gates use phase numbers. -->
 <script id="build-status" type="application/json">
 {
-  "updated": "2026-11-06 10:19 CT",
+  "updated": "2026-11-06 10:22 CT",
   "current_step": "1.03",
   "steps": {
     "0.01": {
@@ -314,6 +314,24 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "status": "done",
       "date": "2026-11-06 10:19 CT",
       "proof": "engine/ (with engine/nautilus/ adapters), risk/, strategies/, api/, app/, tests/, docs/; tests/test_layout.py 7 passed (packages importable and documented, risk/ and api/ Nautilus-free)",
+      "note": ""
+    },
+    "1.04": {
+      "status": "done",
+      "date": "2026-11-06 10:22 CT",
+      "proof": "engine/instruments.py (8 CME specs: MES MCL MGC M6E 10Y active; MNQ MYM MBT configured off; tick values, cycles, correlation groups) + engine/nautilus/instruments.py (FuturesContract builder); tests/test_calendar_instruments.py spec tests passed (79 total passed)",
+      "note": "Built before 1.03 because the sample data pack depends on contract specs and sessions."
+    },
+    "1.05": {
+      "status": "done",
+      "date": "2026-11-06 10:22 CT",
+      "proof": "engine/calendar.py on maintained CME Globex calendars (pandas_market_calendars 5.6): sessions, holidays (Christmas, New Year), shortened sessions (Thanksgiving 12:00 CT), DST switch tests (2026-03-08, 2026-11-01), maintenance break; expiry + roll rules per root with dated tests (MESZ6 roll 12-10, MCLF7 Christmas case, MGC first-notice roll)",
+      "note": "Built before 1.03 (sample data depends on it)."
+    },
+    "1.03": {
+      "status": "in_progress",
+      "date": "2026-11-06 10:22 CT",
+      "proof": "",
       "note": ""
     }
   },
