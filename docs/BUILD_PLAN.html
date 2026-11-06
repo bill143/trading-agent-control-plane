@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-Expert AI Trading System — Build Plan</title>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c232d;--line:#2a3340;--txt:#e6edf3;--mut:#9aa7b4;--acc:#3fb6a8;--acc2:#5b8def;--warn:#e3a33b;--bad:#e5534b;--good:#46c06a}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI,system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55;font-size:15px}
+header{padding:22px 28px 10px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#121a24,#0d1117)}
+header h1{margin:0;font-size:22px;letter-spacing:.2px}
+header p{margin:4px 0 0;color:var(--mut);font-size:13px}
+nav{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5;overflow-x:auto}
+nav button{background:none;border:0;color:var(--mut);padding:14px 16px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;font-weight:600}
+nav button.on{color:var(--txt);border-bottom-color:var(--acc)}
+nav button:hover{color:var(--txt)}
+main{max-width:1180px;margin:0 auto;padding:26px 24px 60px}
+section{display:none}section.on{display:block}
+h2{font-size:20px;margin:0 0 6px}h3{font-size:16px;margin:26px 0 10px;color:var(--acc)}
+.lead{color:var(--mut);margin:0 0 18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;background:#22303f;color:var(--acc2);margin-right:4px}
+.pill.g{background:#173324;color:var(--good)}.pill.w{background:#3a2c12;color:var(--warn)}.pill.r{background:#3a1715;color:var(--bad)}.pill.t{background:#12302d;color:var(--acc)}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
+.flow span{background:var(--panel2);border:1px solid var(--line);padding:6px 10px;border-radius:6px;font-size:13px}
+.flow i{color:var(--mut);font-style:normal}
+.arch{font-family:Consolas,monospace;font-size:12.5px;background:#0a0f15;border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;white-space:pre;color:#c9d6e2}
+ul{margin:6px 0;padding-left:20px}li{margin:3px 0}
+.feat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;cursor:pointer;transition:.15s}
+.feat:hover{border-color:var(--acc);transform:translateY(-2px)}
+.feat .ic{font-size:22px}.feat h4{margin:6px 0 4px;font-size:15px}.feat p{margin:0;color:var(--mut);font-size:13px}
+.feat .ph{margin-top:8px;font-size:11.5px;color:var(--acc)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
+.filters button{background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:6px 12px;border-radius:999px;cursor:pointer;font-size:13px}
+.filters button.on{color:#06231f;background:var(--acc);border-color:var(--acc)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.66);display:none;align-items:center;justify-content:center;z-index:20;padding:18px}
+.modal.on{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:760px;width:100%;max-height:88vh;overflow:auto;padding:22px 24px;position:relative}
+.mbox .x{position:absolute;top:10px;right:12px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);width:34px;height:34px;border-radius:8px;font-size:18px;cursor:pointer}
+.mbox h3{margin-top:18px}
+.ms{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:12px 0;overflow:hidden}
+.ms summary{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;list-style:none}
+.ms summary::-webkit-details-marker{display:none}
+.ms .bar{height:6px;background:#0a0f15;border-radius:4px;width:140px;overflow:hidden;flex-shrink:0}.ms .bar b{display:block;height:100%;background:var(--acc)}
+.ms .body{padding:4px 16px 14px;border-top:1px solid var(--line)}
+.ck{display:flex;gap:10px;padding:7px 0;border-bottom:1px dashed #222b36;font-size:14px}
+.ck input{margin-top:4px;accent-color:var(--acc);width:16px;height:16px;flex-shrink:0}
+.ck.done span{color:var(--mut);text-decoration:line-through}
+.proof{color:var(--warn);font-size:12px;font-weight:600}
+.big{display:flex;align-items:center;gap:14px;margin:10px 0 4px}.big .bar{flex:1;height:10px;background:var(--panel2);border-radius:6px;overflow:hidden}.big .bar b{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.note{border-left:3px solid var(--warn);background:#1f1a10;padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
+.dec{border-left:3px solid var(--acc);background:#0f1f1d;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:14px}
+.xref{font-size:12px;color:var(--acc2);cursor:pointer;text-decoration:underline}
+footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
+@media(max-width:640px){main{padding:18px 14px}.ms .bar{width:70px}}
+</style>
+</head>
+<body>
+<header>
+<h1>Multi-Expert AI Trading System — Build Plan</h1>
+<p>Prepared for Bill Asmar · Nov 5, 2026 · Planning document only. No build work starts until Bill gives the green light.</p>
+</header>
+<nav id="tabs">
+<button data-t="t1" class="on">1 · Build Summary</button>
+<button data-t="t2">2 · Features &amp; Functions</button>
+<button data-t="t3">3 · Build Checklist</button>
+<button data-t="t4">4 · AI Architecture &amp; Training</button>
+<button data-t="t5">5 · Items Not Yet Raised</button>
+<button data-t="t6">6 · Build Sequence</button>
+</nav>
+<main>
+
+<!-- ================= TAB 1 ================= -->
+<section id="t1" class="on">
+<div class="card" id="liveStatus" style="border-color:var(--acc)"></div>
+<h2>What we are building</h2>
+<p class="lead">A trading system run by a team of specialist AIs. Each AI is an expert in one trading school (order flow, volume profile, price action, opening-range breakout, and others). A coordinator AI weighs what the experts say and places a trade only when enough proven experts agree. A fixed risk layer that the AI cannot override sits between every decision and the broker.</p>
+
+<div class="grid2">
+<div class="card"><b>In one sentence</b><br>You feed the system trading knowledge (videos, books, courses, links). It turns that knowledge into testable rules, proves which rules make money on unseen data, and then trades only the proven ones under hard risk limits.</div>
+<div class="card"><b>What "100% finished" means</b><br>A working Windows application you double-click and see working, not code sitting in a repository. Every phase ends with something you can open, click through and judge yourself. It runs in demo mode on sample data until your accounts are connected.</div>
+</div>
+
+<h3>How the system is organized</h3>
+<div class="arch">  KNOWLEDGE LIBRARY  ──►  RULEBOOKS  ──►  EXPERT AIs (one per school)
+  videos · PDFs · links     cited rules       each outputs a standard signal
+                                                      │
+  MARKET DATA (Databento) ──► REGIME DETECTOR ──►  COORDINATOR (meta-model)
+  price · order book ·        trending / range /    weights experts by regime
+  calendar · macro            news / thin market    and proven accuracy
+                                                      │  trade / no trade
+                                                      ▼
+                          PORTFOLIO RISK MANAGER  (fixed rules, AI cannot change)
+                          buying power · daily loss · quotas · prop-firm rules
+                                                      │
+                          SYMBOL ENGINES (NautilusTrader)  ──►  BROKER
+                          one per contract, millisecond reactions
+                                                      │
+  EVALUATION LAB  ◄── results from backtests, paper and live trading reset expert trust
+
+  AI SUPERVISOR (every 1–5 min): adjusts quotas, pauses symbols, can trigger the kill switch.
+  It never sits in the path of an individual order.</div>
+
+<div class="dec"><b>Design rule:</b> The trading engine runs on one always-on machine (your Windows PC during the build, then a hosted server near Chicago before live money). The Windows app, Mac app and phone app are remote controls that watch and control that engine. The phone never runs the engine.</div>
+
+<h3>Foundation: build on proven code, not from scratch</h3>
+<table>
+<tr><th>Role</th><th>Repository / service</th><th>When</th></tr>
+<tr><td>Core engine</td><td>NautilusTrader (nautechsystems/nautilus_trader, LGPL-3.0): data, strategies, risk, portfolio, orders, backtesting and live trading in one system</td><td>Phase 1</td></tr>
+<tr><td>Market data</td><td>Databento adapter (built into Nautilus)</td><td>Phase 1</td></tr>
+<tr><td>Paper broker</td><td>Interactive Brokers adapter (built into Nautilus)</td><td>Phase 1</td></tr>
+<tr><td>Fill realism</td><td>hftbacktest (nkaz001/hftbacktest, MIT): simulates queue position and order delay</td><td>Phase 2</td></tr>
+<tr><td>Prop-firm route</td><td>async_rithmic (Rithmic connection) and a custom Tradovate adapter</td><td>Phase 2 / 7</td></tr>
+<tr><td>Supervisor pattern</td><td>TradingAgents multi-agent pattern (borrowed pattern only)</td><td>Phase 2</td></tr>
+</table>
+
+<h3>Build order, start to finish</h3>
+<table id="phaseTable"></table>
+
+<h3>Key decisions already made</h3>
+<div class="grid2">
+<div class="dec"><b>Platforms:</b> Windows desktop app first. Mac once it is proven to work. iPhone and Android app for monitoring, approvals, alerts and the kill switch.</div>
+<div class="dec"><b>AI role:</b> Fast numeric models make trade decisions. Language-model AIs read material, explain signals and supervise. They are too slow to place orders.</div>
+<div class="dec"><b>Multiple symbols:</b> One engine per contract, one portfolio risk manager above all of them. Symbols are chosen across asset classes so risk is actually spread, not stacked.</div>
+<div class="dec"><b>Proof before money:</b> Backtest → walk-forward → locked holdout → 60 trading days of paper → live with approval on 1 contract → fully automatic.</div>
+</div>
+<p class="lead" style="margin-top:14px">Open conflicts between the earlier conversation and the developer spec (symbols, broker, holding time) are resolved in <span class="xref" onclick="go('t5')">Tab 5</span>.</p>
+</section>
+
+<!-- ================= TAB 2 ================= -->
+<section id="t2">
+<h2>Features &amp; Functions</h2>
+<p class="lead">Everything the application includes. Click any feature to see exactly what it does, what you will see on screen, and the rules it follows.</p>
+<div class="filters" id="filters"></div>
+<div class="grid3" id="featGrid"></div>
+</section>
+
+<!-- ================= TAB 3 ================= -->
+<section id="t3">
+<h2>Build Checklist</h2>
+<p class="lead">Two marks per item. <span class="pill g">BUILT ✓</span> is set by the AI builder when the item is built, tested and cross-checked, with its proof shown underneath. <b>Your tick box</b> means you have seen it working yourself. Items marked <span class="proof">PROOF</span> need the listed evidence. Your ticks are saved in this browser.</p>
+<div style="font-size:13px;color:var(--mut)">Built by builder: <b id="bltCnt" style="color:var(--good)"></b></div>
+<div class="big"><b id="totPct">0%</b><div class="bar"><b id="totBar" style="width:0"></b></div><span id="totCnt" style="color:var(--mut);font-size:13px"></span></div>
+<div style="margin:8px 0 4px"><button onclick="resetChecks()" style="background:var(--panel2);color:var(--mut);border:1px solid var(--line);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12.5px">Reset all ticks</button></div>
+<div id="checklist"></div>
+</section>
+
+<!-- ================= TAB 4 ================= -->
+<section id="t4">
+<h2>AI Architecture, Integration &amp; Training</h2>
+<p class="lead">Every AI in the system: what each one does, how they connect, how they are managed and trained, and how many to run.</p>
+
+<h3>1. How many AIs, and why</h3>
+<p>The system uses three kinds of AI. Only the first kind ever influences a trade decision in real time.</p>
+<table>
+<tr><th>Kind</th><th>Components</th><th>Speed</th><th>Job</th></tr>
+<tr><td><span class="pill t">Decision AIs</span><br>fast numeric models</td><td>Expert models (one per school) · Regime detector · Coordinator</td><td>Milliseconds</td><td>Read market data, issue signals, decide trade or no trade</td></tr>
+<tr><td><span class="pill">Language AIs</span><br>large language models</td><td>Knowledge extractor · Signal explainer · AI supervisor · Ask-the-expert chat · Strategy evaluator</td><td>Seconds</td><td>Read material, draft rulebooks, explain decisions, supervise, answer questions</td></tr>
+<tr><td><span class="pill r">Not AI</span></td><td>Portfolio risk manager · Kill switch · Prop-firm rules</td><td>Milliseconds</td><td>Hard limits. No AI can change them.</td></tr>
+</table>
+
+<div class="dec"><b>Recommended count for version 1: 10 AI components.</b> 7 core experts + regime detector + coordinator + one language-AI service that plays the five language roles. More experts in V1 adds labeling work and overfitting risk faster than it adds edge. New experts join only after the first set is proven.</div>
+
+<h3>2. Expert roster and rollout</h3>
+<table id="expertTable"></table>
+<div class="note"><b>Overlap rule:</b> Wyckoff, SMC/ICT and auction/volume profile often describe the same market event. The coordinator groups them as one "market structure" vote so they cannot fake agreement by voting three times.</div>
+
+<h3>3. How the AIs integrate</h3>
+<div class="flow"><span>Market data</span><i>→</i><span>Feature calculators</span><i>→</i><span>Experts (standard signal)</span><i>→</i><span>Regime detector</span><i>→</i><span>Coordinator</span><i>→</i><span>Risk manager (veto)</span><i>→</i><span>Symbol engine</span><i>→</i><span>Broker</span></div>
+<ul>
+<li><b>One common language.</b> Every expert outputs the same signal format: direction, confidence, setup, entry, stop, target, invalidation, plain-English reasoning, and cited sources. The coordinator can add or remove experts without code changes elsewhere.</li>
+<li><b>Coordinator.</b> Collects every expert's signal each bar, weights each by its proven accuracy in the <i>current regime</i>, trades only when the weighted score clears your adjustable threshold and opposing experts are weak. Default answer is "no trade."</li>
+<li><b>Language AIs stay out of the order path.</b> They explain, review and supervise. The supervisor reads live state every 1–5 minutes and can shrink quotas, pause a symbol or trigger the kill switch. It cannot loosen any risk setting.</li>
+<li><b>Feedback loop.</b> Paper and live results flow into the evaluation lab, which re-weights experts weekly using completed trades only.</li>
+</ul>
+<pre class="arch">{ "expert":"order_flow", "version":"1.4.0", "instrument":"MNQZ2026", "timeframe":"1m",
+  "direction":"long", "confidence":0.72, "setup":"absorption_at_VAL",
+  "entry":21485.25, "stop":21478.00, "target":21502.50,
+  "invalidation":"price accepts below VAL for 2 bars",
+  "reasoning":"Sell delta absorbed at VAL; bid refreshed 4x",
+  "sources":["Dalton - Mind Over Markets p.112","Course X video 7 @ 14:32"] }</pre>
+
+<h3>4. How the AIs are managed</h3>
+<div class="grid2">
+<div class="card"><b>Per-expert controls</b><ul><li>On / off switch and paper-only mode</li><li>Version number, training date, exact source list</li><li>One-click rollback to any earlier version</li><li>Confidence calibration chart: when it says 70%, is it right ~70% of the time?</li></ul></div>
+<div class="card"><b>Monitoring</b><ul><li>Live win rate, profit factor, average win/loss, by regime and instrument</li><li>Drift alert when performance drops below its tested range</li><li>Every decision logged, including no-trades, with each vote and weight</li><li>Language-AI usage cost tracked per month</li></ul></div>
+</div>
+
+<h3>5. AI Training &amp; Integrations module</h3>
+<p>A dedicated screen in the application where all training happens. Material moves through a fixed pipeline, and nothing skips a step:</p>
+<div class="flow"><span>Upload</span><i>→</i><span>Process</span><i>→</i><span>Extract rules</span><i>→</i><span>You review</span><i>→</i><span>Approve</span><i>→</i><span>Coded test</span><i>→</i><span>Auto-label history</span><i>→</i><span>Train</span><i>→</i><span>Walk-forward</span><i>→</i><span>Locked holdout</span><i>→</i><span>Paper</span><i>→</i><span>Live</span></div>
+<ul>
+<li><b>Upload:</b> MP3/WAV/M4A, MP4/MOV/MKV, YouTube/Vimeo/Loom/course links, PDF (incl. scanned), DOCX, PPTX, EPUB, web pages, chart screenshots, CSV/XLSX trade journals, Pine Script / NinjaScript / Python. Drag-and-drop, bulk, folder and phone upload.</li>
+<li><b>Process:</b> transcripts with timestamps and speakers, chart frames captured from video, OCR, searchable chunks with source and page/timestamp.</li>
+<li><b>Rulebook:</b> the AI drafts setup, entry, stop, target, invalidation and context rules, each citing page or timestamp. Conflicts between sources are shown side by side. You approve, edit or reject each rule.</li>
+<li><b>Labels:</b> each approved rule is coded as a measurable test, run over 3+ years of history to produce win/loss examples. Target: 300+ examples per setup. Rules that cannot be measured are marked "discretionary only."</li>
+<li><b>Integrations:</b> the same screen manages connections to Databento, Interactive Brokers, Tradovate/Rithmic, the language-AI provider and phone alerts, with status lights and keys held in the encrypted vault.</li>
+</ul>
+
+<h3>6. Approved Strategy Library (multi-strategy)</h3>
+<p>The AI does not trade one method. It works from a full library of approved strategies (ORB, VWAP reversion, absorption, failed breakout, and every strategy you add). While monitoring and training it considers <i>all active strategies</i>, and the coordinator weights them by what is working in the current regime.</p>
+<div class="flow"><span class="pill w">Candidate</span><i>→</i><span class="pill">Testing</span><i>→</i><span class="pill g">Approved</span><i>→</i><span class="pill t">Active</span><i>→</i><span class="pill r">Retired</span></div>
+<p>Each strategy card shows: owning expert, rules, instruments, sessions, sources, test results, live results, current weight, and status.</p>
+
+<h3>7. Adding a strategy from a video or link</h3>
+<p>Paste a YouTube or other link. The AI watches, transcribes and extracts the strategy's rules, then the system decides whether it earns a place in the library:</p>
+<table>
+<tr><th>Gate</th><th>Pass condition</th></tr>
+<tr><td>1. Measurable</td><td>Every entry, stop and exit rule can be coded and detected on a chart</td></tr>
+<tr><td>2. New</td><td>Not a duplicate of an existing strategy (overlap check against the library)</td></tr>
+<tr><td>3. Edge on unseen data</td><td>Walk-forward and holdout results after real commissions and slippage: 200+ test trades, profit factor above 1.3, max drawdown inside your prop-firm limit</td></tr>
+<tr><td>4. Adds value</td><td>Low correlation with active strategies, or better results in a regime the library handles poorly</td></tr>
+<tr><td>5. Paper proof</td><td>Holds up in paper trading before it gets live weight</td></tr>
+</table>
+<p>You see a one-page verdict card: <b>Add</b>, <b>Reject</b> (with the reason) or <b>Needs more data</b>. You make the final approval.</p>
+
+<h3>8. Where Tab 4 lives in the other tabs</h3>
+<table>
+<tr><th>Tab 4 item</th><th>Feature (Tab 2)</th><th>Build phase (Tab 3)</th></tr>
+<tr><td>Knowledge library, ingestion, rulebooks, labels</td><td>Knowledge Library · Strategy Ingestion · Rulebook Builder · Labeling</td><td>Phase 3</td></tr>
+<tr><td>Expert AIs, strategy library</td><td>Expert AIs · Approved Strategy Library · Ask the Expert</td><td>Phase 4</td></tr>
+<tr><td>Regime, coordinator, supervisor</td><td>Regime Detector · Coordinator · AI Supervisor</td><td>Phase 5</td></tr>
+<tr><td>Testing and proof</td><td>Evaluation Lab · Fill-Realism Simulator</td><td>Phases 2, 6</td></tr>
+<tr><td>Integrations and keys</td><td>Training &amp; Integrations · Security Vault</td><td>Phases 1, 7</td></tr>
+</table>
+</section>
+
+<!-- ================= TAB 5 ================= -->
+<section id="t5">
+<h2>Items Not Yet Raised</h2>
+<p class="lead">Things that decide whether this system makes money, stays legal and stays on budget. Each has a decision or a requirement attached. Settle the first group before any build work starts.</p>
+<div id="t5body"></div>
+</section>
+
+<!-- ================= TAB 6 ================= -->
+<section id="t6">
+<h2>Build Sequence — the AI builder's work order</h2>
+<p class="lead">Every step the AI builder performs, in order. Tab 3 is what <i>you</i> verify; this tab is what the <i>builder</i> does. The builder works top to bottom. When a step is built, tested and cross-checked, the builder records it inside this file, so the ticks and proof below update by themselves when you reopen it. It stops at every phase gate for your green light.</p>
+<div class="grid2">
+<div class="card"><b>Rules on every step</b><ul><li>Tests written and passing before the step is marked done</li><li>No keys or passwords in code or logs</li><li>Every action that changes settings is audit-logged</li><li>No live-money order without a passed gate</li><li>BUILD_STATUS.md updated with step ID, result and proof</li></ul></div>
+<div class="card"><b>Tracks covered</b><div id="trk" style="margin-top:6px"></div><p style="margin:10px 0 0"><button onclick="dlMD()" style="background:var(--acc);color:#06231f;border:0;padding:8px 14px;border-radius:6px;font-weight:700;cursor:pointer">Download BUILD_SEQUENCE.md for the builder</button></p></div>
+</div>
+<div class="big"><b id="sPct">0%</b><div class="bar"><b id="sBar" style="width:0"></b></div><span id="sCnt" style="color:var(--mut);font-size:13px"></span></div>
+<div class="filters" id="sFil"></div>
+<div id="seq"></div>
+</section>
+
+</main>
+<footer>Build specification and planning document only. Not financial, tax or legal advice. Confirm prop-firm, data-licensing and regulatory items with the firms, an accountant and a futures attorney.</footer>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeM()"><div class="mbox"><button class="x" onclick="closeM()">×</button><div id="mcontent"></div></div></div>
+
+<!-- BUILDER STATUS: the AI builder edits ONLY the JSON inside this block. Keys: steps use Tab 6 IDs (e.g. "1.04"), checks use Tab 3 IDs (e.g. "C1.04"), gates use phase numbers. -->
+<script id="build-status" type="application/json">
+{
+  "updated": "2026-11-05 20:25 CT",
+  "current_step": "0.01",
+  "steps": {},
+  "checks": {},
+  "gates": {}
+}
+</script>
+<script>
+/* ---------- builder status ---------- */
+let BS={steps:{},checks:{},gates:{}};try{BS=Object.assign(BS,JSON.parse(document.getElementById('build-status').textContent))}catch(e){}
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ---------- tabs ---------- */
+function go(id){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===id));document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.t));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+
+/* ---------- phases ---------- */
+const PHASES=[
+["0","Plan & accounts","Sign off this plan. Open Databento and Interactive Brokers paper accounts. Get written prop-firm automation approval. Contract with IP ownership and milestone payments.","Signed plan and accounts"],
+["1","Foundation app","NautilusTrader installed, 5 symbol engines running together, live status per symbol, portfolio risk manager, starter strategy, backtests, Windows desktop app with demo mode, encrypted key vault.","Windows app you double-click"],
+["2","Repo extensions","hftbacktest fill realism, async_rithmic connection, TradingAgents-style supervisor pattern. One milestone per repo.","Each add-on working inside the app"],
+["3","Knowledge library","Upload, processing, transcripts, rulebook drafting with citations, approval screens, chart labeling, auto-labeling.","Training & Integrations screen"],
+["4","Expert AIs","7 core experts, each with library, rulebook, feature calculator, trained model, versions and calibration. Approved Strategy Library.","Live expert reads side by side"],
+["5","Regime, coordinator, supervisor","Regime detector, coordinator weighting and threshold, overlap grouping, decision log, AI supervisor.","Coordinator decisions on live chart"],
+["6","Evaluation & paper","Walk-forward, locked holdout, version comparison, 60 trading days of paper trading.","Paper results report"],
+["7","Prop-firm execution & live","Tradovate/Rithmic routing, prop-firm rules per account, multi-account copy, Live-with-approval on 1 contract, then fully automatic.","Live on 1 contract with approval"],
+["8","Mac & phone apps","Mac desktop app. iPhone and Android app: monitoring, trade approvals, alerts, kill switch.","Apps on your devices"],
+["9","Operations & handover","Chicago-area server, backups with tested restore, uptime alerts, documentation, walkthrough recording, all accounts in your name.","Full handover"]];
+document.getElementById('phaseTable').innerHTML='<tr><th>Phase</th><th>Name</th><th>What gets built</th><th>What you can open and judge</th></tr>'+PHASES.map(p=>`<tr><td><span class="pill t">P${p[0]}</span></td><td><b>${p[1]}</b></td><td>${p[2]}</td><td>${p[3]}</td></tr>`).join('');
+
+/* ---------- experts ---------- */
+const EX=[
+["Order flow / tape","Absorption, exhaustion, imbalance stacks, delta divergence","High","V1 core"],
+["Auction / volume profile","POC, value area, balance vs. imbalance, acceptance/rejection","High","V1 core (structure group)"],
+["Price action","Swing structure, pullbacks, failed breakouts, bar patterns","High","V1 core"],
+["Trend following","Trend direction and strength, trend entries","High","V1 core"],
+["Mean reversion","Stretch from VWAP or value, reversion setups","High","V1 core"],
+["Breakout / momentum (ORB)","Opening-range breaks with volume, continuation","High","V1 core"],
+["Event-driven","Pre/post-news behavior, blackout windows","High","V1 core (mainly a filter)"],
+["SMC / ICT","Liquidity sweeps, order blocks, FVGs, kill zones","Medium","V1.5 (structure group)"],
+["Wyckoff","Accumulation/distribution, springs, upthrusts","Medium","V1.5 (structure group)"],
+["Classical technical","Chart patterns, support/resistance, indicators","Medium","V1.5"],
+["Sentiment / contrarian","COT, put/call, VIX extremes","Medium","Later · daily bias only"],
+["Global macro","Rates, dollar, economic data bias","Medium","Later · daily bias only"],
+["Volatility / options","Vol regime, dealer positioning (GEX)","Medium","Later · context only"],
+["Relative value","NQ vs ES, GC vs SI divergences","Medium","Later · context only"],
+["Quant / statistical","Patterns not tied to any school","High","Later phase"],
+["Carry","Roll yield, curve shape","High","Not for intraday"],
+["Elliott / Fibonacci / Gann","Wave counts, retracements, time cycles","Low","Fibonacci levels only"]];
+document.getElementById('expertTable').innerHTML='<tr><th>Expert</th><th>What it detects</th><th>Trainability</th><th>Rollout</th></tr>'+EX.map(e=>`<tr><td><b>${e[0]}</b></td><td>${e[1]}</td><td><span class="pill ${e[2]==='High'?'g':e[2]==='Medium'?'w':'r'}">${e[2]}</span></td><td>${e[3]}</td></tr>`).join('');
+
+/* ---------- features ---------- */
+const CATS=["All","Apps","Engine & Data","Risk & Execution","AI & Training","Testing","Operations"];
+const F=[
+{c:"Apps",i:"🖥️",n:"Windows Desktop App",s:"The main control screen you install and double-click.",p:"P1",
+d:"The application you open on your PC to see and control everything. It connects to the trading engine wherever it runs (your PC now, a server later).",
+see:["Live chart and status for every symbol: price, spread, ATR, VWAP, prior-day and overnight levels","Open positions, P&L, contracts used today","Start / stop controls and the kill switch","Backtest results and the trade journal","Demo mode on sample data before any accounts are connected"],
+rules:["Installs with an icon; no command line needed","Tested by the builder before hand-off"]},
+{c:"Apps",i:"📱",n:"Phone App (iPhone & Android)",s:"Watch, approve trades and hit the kill switch from anywhere.",p:"P8",
+d:"A remote control for the engine. It never runs the trading engine itself because a phone can sleep or lose signal mid-trade.",
+see:["Live P&L, positions, current regime","Approve / reject buttons in Live-with-approval mode","Alerts for trades, rule breaches and system failures","Kill switch"],rules:["Login with two-factor authentication","Every phone action recorded in the audit log"]},
+{c:"Apps",i:"💻",n:"Mac App",s:"Same desktop app on Mac once Windows is proven.",p:"P8",
+d:"A Mac version of the desktop control app, connecting to the same engine.",see:["Identical screens to Windows"],rules:["Built only after the Windows version is proven"]},
+{c:"Engine & Data",i:"⚙️",n:"Trading Engine (NautilusTrader)",s:"The proven core that runs strategies, orders, risk and backtests.",p:"P1",
+d:"NautilusTrader is an open-source professional trading engine. The same code runs in backtests and live trading, so test results reflect how the system actually behaves.",
+see:["Engine status light in the app"],rules:["Runs on one always-on machine","LGPL-3.0 license (see Tab 5 if you ever sell the app)"]},
+{c:"Engine & Data",i:"🔀",n:"Multi-Symbol Engines",s:"One engine per contract, all running at once.",p:"P1",
+d:"Each contract gets its own engine reacting in milliseconds, tracking order book, support/resistance, volatility, state and calendar. Risk is spread across asset classes instead of stacked on one market.",
+see:["A status tile per symbol","Contracts used vs. quota per symbol"],rules:["Symbol qualifies only if target ticks × tick value ≥ 2× round-trip fees, recalculated daily","At most 1–2 open positions per symbol"]},
+{c:"Engine & Data",i:"📡",n:"Market Data Pipeline",s:"Live and historical prices, order book, calendar and macro data.",p:"P1",
+d:"Databento supplies CME futures data: live tick data with bid/ask and depth, plus 3+ years of history per instrument. Adds economic calendar (actual vs. forecast) and later COT/sentiment feeds.",
+see:["Data feed health light","Next scheduled news event per symbol"],rules:["Contract rollover handled automatically","Holidays and shortened sessions handled","Feed failure raises an alert and halts new trades"]},
+{c:"Risk & Execution",i:"🛡️",n:"Portfolio Risk Manager",s:"Hard limits that sit above every engine. Not AI.",p:"P1",
+d:"Checks every order before it leaves: buying power with a 30–50% buffer, margin, correlation, daily loss, per-trade loss and contract quotas. Built before any trading logic.",
+see:["Daily risk budget used vs. remaining","Per-symbol and total quota bars"],rules:["Daily risk budget split inversely to volatility","Max 3 positions open across the portfolio","No new entries X minutes before scheduled news","No AI can change these settings"]},
+{c:"Risk & Execution",i:"🏦",n:"Prop-Firm Rule Enforcement",s:"Each funded account's rules enforced automatically.",p:"P7",
+d:"Per-account settings for trailing drawdown, daily loss limit, consistency rule, contract limits, allowed hours and flat-by time.",
+see:["Distance to each account's drawdown and daily limit"],rules:["System stops trading the account before a limit is reached","Requires written automation approval from each firm (Tab 5)"]},
+{c:"Risk & Execution",i:"🛑",n:"Kill Switch & Auto-Halt",s:"One button flattens everything and stops the system.",p:"P1",
+d:"Manual button on desktop and phone. Fires automatically on a rule breach, data feed failure or broker disconnect.",
+see:["Red kill switch on every screen","Halt reason in the log"],rules:["Proven on paper for each trigger before live"]},
+{c:"Risk & Execution",i:"🔌",n:"Execution & Broker Connectors",s:"Sends orders to the broker safely.",p:"P1 / P7",
+d:"Interactive Brokers for paper trading in Phase 1. Tradovate and/or Rithmic for prop-firm accounts in Phase 7.",
+see:["Order status, fills and slippage per trade"],rules:["Bracket orders: entry, stop and target sent together","One signal can never create two orders","On restart, reads open positions from the broker before acting","Multi-account copy with per-account limits"]},
+{c:"Risk & Execution",i:"🎚️",n:"Trading Modes",s:"Research, Paper, Live with approval, Fully automatic.",p:"P1 / P7",
+d:"Switchable per account. Research places no orders. Paper simulates. Live-with-approval asks you to tap confirm on each trade. Fully automatic needs no input.",
+see:["Mode selector per account"],rules:["Fully automatic unlocked only after paper and approval stages pass"]},
+{c:"AI & Training",i:"📚",n:"Knowledge Library",s:"Upload videos, books, courses and links per expert.",p:"P3",
+d:"Every expert has its own library on one shared engine. Material is transcribed, OCR'd, split into searchable chunks and tagged.",
+see:["Status per file: Uploaded, Processing, Needs review, Approved, Active, Retired, Failed (with reason)","Search that jumps to the exact page or video timestamp","Storage, processing cost and audit log"],rules:["Quality rating 1–5 per source affects expert trust","Every expert version records exactly which sources trained it"]},
+{c:"AI & Training",i:"🎬",n:"Strategy Ingestion from Video & Links",s:"Paste a YouTube link; the AI extracts and evaluates the strategy.",p:"P3",
+d:"The AI transcribes the video, captures chart frames, extracts the rules, and runs the strategy through the five-gate test in Tab 4 to recommend Add, Reject or Needs more data.",
+see:["One-page verdict card with reasons"],rules:["You give final approval","Paid course content used for your own system only"]},
+{c:"AI & Training",i:"📜",n:"Rulebook Builder",s:"AI drafts rules with citations; you approve each one.",p:"P3",
+d:"Definitions, setup criteria, entry, stop, target, invalidation and context rules, each citing a page or timestamp. Conflicts between sources shown side by side.",
+see:["Approve / edit / reject on each rule","Rule-to-code list per expert"],rules:["Only approved rules reach an expert","Unmeasurable rules marked 'discretionary only'"]},
+{c:"AI & Training",i:"🏷️",n:"Labeling & Chart Annotation",s:"Creates the examples that actually train each expert.",p:"P3",
+d:"Mark setups on historical charts by hand, or let the system run each coded rule over years of history and record wins and losses automatically.",
+see:["Example count per setup with a 300+ target","Spot-check queue for auto-labels"],rules:["Labels use only data available at that moment (no look-ahead)"]},
+{c:"AI & Training",i:"🗂️",n:"Approved Strategy Library",s:"Every proven strategy, not just one method.",p:"P4",
+d:"The full list of strategies the system may use (ORB, VWAP reversion, absorption and more). The AI monitors all active strategies and the coordinator weights them by current conditions.",
+see:["Strategy cards: status, rules, results, current weight"],rules:["Candidate → Testing → Approved → Active → Retired"]},
+{c:"AI & Training",i:"🧠",n:"Expert AIs",s:"One specialist AI per trading school.",p:"P4",
+d:"Seven core experts in V1. Each has its own library, rulebook, feature calculator, trained model, test reports and live tracking, and outputs the standard signal format.",
+see:["Each expert's current read on the live chart","Calibration chart and performance by regime"],rules:["On/off and paper-only switches","No expert goes live with fewer than 200 test trades"]},
+{c:"AI & Training",i:"🌦️",n:"Regime Detector",s:"Classifies what kind of market it is right now.",p:"P5",
+d:"Trending up, trending down, balanced/range, high-volatility event, low liquidity or pre-news blackout, using ATR, trend strength, value-area overlap, relative volume, time of day and the calendar.",
+see:["Current regime and its confidence"],rules:["Expert weights depend on the regime"]},
+{c:"AI & Training",i:"🎯",n:"Coordinator (Meta-Model)",s:"Weighs the experts and decides trade or no trade.",p:"P5",
+d:"Collects every signal each bar, weights each expert by proven accuracy in the current regime, groups overlapping experts as one vote, and trades only above your threshold.",
+see:["Each expert's vote and weight per decision","Adjustable threshold slider"],rules:["Default is no trade","Re-weights weekly from completed trades only","Cannot change risk settings"]},
+{c:"AI & Training",i:"👁️",n:"AI Supervisor",s:"Watches the whole system every 1–5 minutes.",p:"P2 / P5",
+d:"A language AI that reads live state and moves unused quota from dead or choppy symbols to clean ones, pauses symbols, and can trigger the kill switch.",
+see:["Supervisor actions with plain-English reasons"],rules:["Never sits in the path of an individual order","Can tighten limits, never loosen them"]},
+{c:"AI & Training",i:"💬",n:"Ask the Expert",s:"Chat with any expert; answers cite sources.",p:"P4",
+d:"Ask one expert about its school, or ask 'what does each expert see right now?' on a live chart.",see:["Side-by-side expert reads"],rules:["Every answer cites source and timestamp"]},
+{c:"AI & Training",i:"🔗",n:"Training & Integrations Center",s:"One screen for training runs and every connection.",p:"P3",
+d:"Runs the training pipeline and manages connections to Databento, brokers, the language-AI provider and phone alerts.",see:["Training run history and status","Connection status lights"],rules:["Keys stored only in the encrypted vault"]},
+{c:"Testing",i:"🧪",n:"Evaluation Lab",s:"Proves an edge on unseen data before money is used.",p:"P1 / P6",
+d:"Tick-level backtester with real commissions and slippage, walk-forward testing, a locked holdout period, and side-by-side comparison of versions and settings.",
+see:["Profit factor, expectancy, max drawdown, Sharpe, win rate, avg win/loss, trade count"],rules:["Holdout dates fixed before training begins","60 trading days of paper before live money"]},
+{c:"Testing",i:"⏱️",n:"Fill-Realism Simulator",s:"Shows whether small-tick trades would really fill.",p:"P2",
+d:"hftbacktest models your place in the order queue and order delay, which decides whether 1–2 tick scalps are realistic.",see:["Simulated vs. ideal fill comparison"],rules:["Used for research alongside Nautilus"]},
+{c:"Operations",i:"📒",n:"Dashboard, Journal & Audit Trail",s:"Every decision, trade and change recorded.",p:"P1 / P5",
+d:"Trade journal with each trade's full decision record, performance per expert, regime and account, and a log of every change.",see:["Searchable journal","Export for your accountant"],rules:["No-trade decisions logged too"]},
+{c:"Operations",i:"🔐",n:"Security, Backups & Uptime",s:"Keys vault, daily backups, alerts if anything stops.",p:"P1 / P9",
+d:"API keys and broker logins encrypted, never in code. Daily automatic backups with a tested restore. Uptime monitoring with phone alerts. Runs on a server near Chicago for live trading.",see:["System health panel"],rules:["All accounts and code in your name"]}];
+let cat="All";
+document.getElementById('filters').innerHTML=CATS.map(c=>`<button class="${c==='All'?'on':''}" data-c="${c}">${c}</button>`).join('');
+document.querySelectorAll('#filters button').forEach(b=>b.onclick=()=>{cat=b.dataset.c;document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('on',x===b));renderF()});
+function renderF(){document.getElementById('featGrid').innerHTML=F.map((f,i)=>({f,i})).filter(o=>cat==='All'||o.f.c===cat).map(({f,i})=>`<div class="feat" onclick="openF(${i})"><div class="ic">${f.i}</div><h4>${f.n}</h4><p>${f.s}</p><div class="ph">${f.c} · Phase ${f.p.replace(/P/g,'')}</div></div>`).join('')}
+function openF(i){const f=F[i];document.getElementById('mcontent').innerHTML=`<div style="font-size:30px">${f.i}</div><h2>${f.n}</h2><p><span class="pill">${f.c}</span><span class="pill t">Built in ${f.p}</span></p><h3>What it does</h3><p>${f.d}</p><h3>What you will see</h3><ul>${f.see.map(x=>`<li>${x}</li>`).join('')}</ul><h3>Rules &amp; limits</h3><ul>${f.rules.map(x=>`<li>${x}</li>`).join('')}</ul>`;document.getElementById('modal').classList.add('on')}
+function closeM(){document.getElementById('modal').classList.remove('on')}
+renderF();
+
+/* ---------- checklist ---------- */
+const P="(proof)";
+const CL=[
+["Phase 0 · Plan & accounts",["Build plan (this file) reviewed and green-lit","Contract states Bill owns all code, models, data and documentation","Milestone payments tied to checklist items shown working","Databento account opened in Bill's name","Interactive Brokers paper account opened in Bill's name","Written automation approval from each prop firm "+P+" emails on file","Monthly operating cost estimate agreed","Target metrics agreed: profit factor above 1.3, max drawdown inside prop-firm limit","Holdout period dates written down before any training "+P]],
+["Phase 1 · Foundation app (NautilusTrader)",["NautilusTrader installed in Bill's repository with a clean project layout","Windows desktop app installs with an icon and opens with a double-click","Demo mode runs on sample data with no keys connected","Symbol engines running together in one system","Live status per symbol: price, spread, ATR, VWAP, prior-day and overnight levels, position, P&L, contracts used","Daily fee filter (target ticks × tick value ≥ 2× round-trip fees) calculated per symbol","Portfolio risk manager: buying power with buffer, margin, daily loss, per-trade loss, quotas","Cap on positions moving in the same direction; max 3 open portfolio-wide","No new entries within X minutes of scheduled news","Starter strategy runs on every symbol end to end","Backtests over historical data with a results report","Manual kill switch flattens everything "+P+" demo on paper","Automatic kill on breach, data failure and broker disconnect "+P+" demo each","Duplicate-order protection "+P+" same signal twice, one order","Restart reads open positions before acting","API keys stored in an encrypted vault, never in code","Automated tests for risk layer and order handling passing","Databento and IBKR paper connected once keys are supplied"]],
+["Phase 2 · Repo extensions (one milestone per repo)",["hftbacktest integrated: queue position and latency simulation","async_rithmic connection working on a test account","AI supervisor built on the TradingAgents pattern, reading state every 1–5 minutes","Supervisor can pause symbols, move quota and trigger kill switch, and cannot loosen limits "+P+" show it blocked"]],
+["Phase 3 · Knowledge library & training center",["Upload works for MP3, WAV, M4A, MP4, MOV, PDF, scanned PDF, DOCX, PPTX, EPUB, TXT, CSV, XLSX, PNG, JPG","YouTube/Vimeo/course links import and transcribe","Web links snapshotted at upload","Bulk, folder and phone upload","Duplicate files detected","5 GB+ video uploads and resumes after a dropped connection","Transcripts with timestamps and speaker labels "+P+" open one","Scanned PDFs OCR'd and searchable","Chart frames from video captured and linked","Status pipeline with failure reasons","Sources assignable to one or more experts; tags, quality rating, search, filters","Search result jumps to exact page or timestamp","Retire/delete removes a source from the next training run","Audit log of every upload, edit and deletion","AI drafts a rulebook per expert with a citation on every rule","Conflicting rules flagged side by side","Approve / edit / reject each rule","Each approved rule has a coded test or is marked discretionary "+P+" rule-to-code list","Chart annotation tool for setups, entry, stop, target","Auto-labeling records win/loss over history","Example count per setup shown (300+ target)","Video strategy ingestion produces an Add / Reject / Needs-more-data verdict"]],
+["Phase 4 · Expert AIs (repeat for each of the 7 core experts)",["Expert has its own library, rulebook and feature calculator","Outputs the exact standard signal format "+P+" sample JSON from live data","Plain-English reasoning with cited sources on every signal","Version history with source list and one-click rollback","Backtest and walk-forward report by instrument, session and regime "+P,"Locked holdout result "+P+" holdout dates stated before training","Confidence calibration chart","On/off and paper-only switches","200+ test trades behind each expert","Ask-the-expert chat answers with citations","Approved Strategy Library screen with status per strategy"]],
+["Phase 5 · Regime, coordinator & supervisor",["Regime shown live with confidence","Coordinator weights experts by regime "+P+" weight table per regime","Overlapping experts grouped as one vote","Adjustable trade threshold","Every decision logged, including no-trades, with votes and weights","Weekly re-weighting runs and is logged","Coordinator cannot change risk settings "+P+" show it blocked"]],
+["Phase 6 · Evaluation lab & paper trading",["Tick-level backtester with commissions and slippage","Walk-forward testing","Full report set: profit factor, expectancy, drawdown, Sharpe, win rate, avg win/loss, trade count","Side-by-side version comparison","Each feature uses only data available at that moment "+P+" developer explanation","60 trading days of paper trading "+P+" paper results report","Live drift alert per expert"]],
+["Phase 7 · Prop-firm execution & live",["Tradovate and/or Rithmic connection live on paper","Bracket orders (entry, stop, target) sent together","Prop-firm rules per account: trailing drawdown, daily limit, consistency, hours, flat-by time","Multi-account copy with per-account limits","Slippage recorded on every fill","All four modes work: Research, Paper, Live with approval, Fully automatic","Live with approval on 1 contract","Fully automatic unlocked only after approval stage meets targets"]],
+["Phase 8 · Mac & phone apps",["Mac desktop app connects to the engine","iPhone app: status, approvals, alerts, kill switch","Android app: status, approvals, alerts, kill switch","Phone login uses two-factor authentication","Phone alerts for trades, breaches and system failures"]],
+["Phase 9 · Operations & handover",["Engine runs on a server near Chicago, not a laptop","Daily automatic backups and a tested restore","Uptime monitoring with alerts","Trade journal exports for your accountant","Full source code in a repository Bill owns","Setup and operations documentation","Data licenses and all accounts in Bill's name","Walkthrough recording of the whole system"]]];
+let st={};try{st=JSON.parse(localStorage.getItem('aits_ck')||'{}')}catch(e){}
+function save(){try{localStorage.setItem('aits_ck',JSON.stringify(st))}catch(e){}}
+function renderC(){let tot=0,done=0,blt=0;const open=[...document.querySelectorAll('#checklist .ms')].map(d=>d.open);document.getElementById('checklist').innerHTML=CL.map((m,mi)=>{let d=0,b=0;const items=m[1].map((t,ti)=>{const k=mi+'_'+ti,on=!!st[k],cid='C'+mi+'.'+String(ti+1).padStart(2,'0'),bs=BS.checks[cid];if(on)d++;const built=bs&&bs.status==='built';if(built)b++;const txt=t.replace(' (proof)',' <span class="proof">PROOF</span>');return `<label class="ck ${on?'done':''}"><input type="checkbox" ${on?'checked':''} onchange="tog('${k}')"><span><b style="color:var(--acc2)">${cid}</b> &nbsp;${txt} ${built?'<span class="pill g">BUILT ✓</span>':''}${bs&&bs.proof?`<br><small style="color:var(--mut)">Proof: ${esc(bs.proof)}${bs.date?' · '+esc(bs.date):''}</small>`:''}</span></label>`}).join('');tot+=m[1].length;done+=d;blt+=b;const pc=Math.round(d/m[1].length*100);return `<details class="ms" ${open.length?(open[mi]?'open':''):(mi<2?'open':'')}><summary><span>${m[0]}</span><span style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mut)">built ${b} · verified ${d}/${m[1].length}<span class="bar"><b style="width:${pc}%"></b></span></span></summary><div class="body">${items}</div></details>`}).join('');const p=Math.round(done/tot*100);document.getElementById('totPct').textContent=p+'%';document.getElementById('totBar').style.width=p+'%';document.getElementById('totCnt').textContent=done+' of '+tot+' verified by you';document.getElementById('bltCnt').textContent=blt+' of '+tot}
+function tog(k){st[k]=!st[k];save();renderC()}
+function resetChecks(){st={};save();renderC()}
+renderC();
+
+/* ---------- tab 5 ---------- */
+const T5=[
+{g:"Decide before the build starts: conflicts between the conversation and the spec",items:[
+["Which contracts to trade","The conversation picked MES, MCL, MGC, M6E and 10Y to spread risk across asset classes. The developer spec lists MNQ, MYM, MGC and MBT. MNQ and MYM are both stock indexes that move together, and they fail the 1–2 tick fee filter.","<b>Decision:</b> Phase 1 runs the conversation's 5-symbol set for the foundation. The spec's prop-firm list (MNQ, MYM, MGC, MBT) is used for the intraday experts, with targets large enough to clear fees, and MNQ + MYM count as one correlated bet in the risk manager."],
+["Which broker","The conversation chose Interactive Brokers (built into Nautilus). The spec requires Tradovate for prop-firm accounts. NautilusTrader has no built-in Tradovate adapter, so one must be written.","<b>Decision:</b> IBKR paper for Phases 1–6. For prop accounts in Phase 7, use Rithmic (async_rithmic) if your firm supports it, otherwise build the Tradovate adapter. Budget for it."],
+["How long trades are held","The first conversation described 1–2 second scalps for $1–2 per trade. The spec describes intraday expert signals with entry, stop and target. Second-long scalps need queue position and speed a retail setup rarely gets.","<b>Decision:</b> The multi-expert intraday system is the product. The 1–2 tick scalper becomes one strategy in the library and must pass the same tests (hftbacktest fill realism first)."],
+["Where the engine runs","Your PC is fine for building and demo. Live trading needs a machine that never sleeps, close to CME's data center in Aurora, Illinois.","<b>Decision:</b> PC through Phase 6, Chicago-area server before Phase 7."]]},
+{g:"Trading risks",items:[
+["Prop-firm automation rules","Some prop firms restrict or ban fully automated trading on funded accounts. A breach can void payouts.","Written confirmation from each firm that your exact setup is allowed, before live."],
+["Overfitting","With many experts, a system can fit the past perfectly and fail live. The most common way these projects lose money.","Walk-forward testing plus a locked holdout chosen before training."],
+["Look-ahead bias","A backtest that accidentally uses future data looks brilliant and is worthless.","Developer explains how each feature uses only data available at that moment."],
+["Costs and slippage","Small intraday edges vanish after commissions and slippage.","Every backtest includes real commissions and modeled slippage."],
+["Correlated positions","Index futures move together 85–95% of the time. Four index longs is one big bet.","Risk manager treats correlated symbols as one exposure."],
+["Minimum sample size","Ten good trades prove nothing.","No expert goes live with fewer than 200 test trades."],
+["Model drift","An edge that worked last year can fade.","Live monitoring per expert, drift alerts and a retraining schedule."],
+["Paper vs. live gap","Paper fills are kinder than real fills.","Live with approval on 1 contract and compare slippage to paper before scaling."],
+["Realistic expectations","Professional systems target modest, steady edges with controlled drawdowns, not high win rates.","Agree targets up front: profit factor above 1.3, drawdown inside prop limits."]]},
+{g:"Technical items",items:[
+["Speed","Language AIs take seconds to answer, too slow for entries.","Numeric models decide; language AIs explain and supervise."],
+["Power or internet loss","If the engine or your connection drops mid-trade, open positions are exposed.","Stops and targets rest at the broker as bracket orders; server hosting before live."],
+["Time zones and daylight saving","CME sessions, news times and prop-firm flat-by times shift with daylight saving. A one-hour error breaks rules.","All times stored in exchange time with automatic DST handling and a test for the switch dates."],
+["Contract rollover and holidays","Futures expire quarterly; holidays shorten sessions.","Automatic rollover and holiday calendar (on the checklist)."],
+["Updates during market hours","An update while trading can crash the engine mid-position.","Updates only when flat and outside trading hours, with a rollback version ready."],
+["Data volume","Tick and order-book history for several contracts over 3+ years is large.","Storage plan and cost in the monthly estimate."],
+["Language-AI provider dependency","If the AI provider is down or changes pricing, explanations and supervision stop.","Trading continues safely without it; supervisor outage triggers an alert, not a trade."]]},
+{g:"Legal, business and money",items:[
+["Market data licensing","Real-time CME data carries exchange fees. Cheap sources often lack bid/ask or depth. Professional vs. non-professional status changes the price.","A named vendor, monthly cost, and a license that permits automated use."],
+["Course material rights","Paid course videos are usually licensed for personal use only.","Use them for your own system only; never resell or redistribute."],
+["Selling signals or managing money","Offering signals or trading for others can require CFTC/NFA registration.","Speak to a futures attorney before offering this to anyone else."],
+["Open-source license (LGPL-3.0)","NautilusTrader is LGPL-3.0. Using it privately is fine; selling or distributing the app carries obligations.","Attorney review before any commercial release."],
+["IP and ownership","Without it in the contract, the developer may own the code.","Contract states you own all code, models, data and documentation."],
+["Payment tied to proof","Hourly billing rewards activity, not results.","Milestone payments released only when checklist items are shown working."],
+["Ongoing running costs","Data feeds, server, AI usage, storage and broker fees are monthly bills after the build.","Monthly cost estimate before signing."],
+["Tax records","Futures gains have their own tax treatment and prop-firm payouts may be reported differently.","Journal exports your accountant can use; confirm treatment with your accountant."],
+["Labeling effort","ICT, Wyckoff and pattern experts need thousands of labeled examples. That is weeks of work.","A labeling plan with hours estimated and who does it."]]},
+{g:"Your role as operator",items:[
+["Human override","You need to stop or approve trades at any moment.","Live-with-approval mode and a phone kill switch with two-factor login."],
+["Approval fatigue","Approving every trade by phone gets tiring and leads to rubber-stamping.","Set a clear rule for when to move from approval mode to automatic, based on agreed metrics."],
+["Who watches when you can't","You travel a lot. Alerts are useless if nobody responds.","Automatic halts on every failure; the system defaults to flat and stopped when unsure."]]}];
+document.getElementById('t5body').innerHTML=T5.map(g=>`<h3>${g.g}</h3><table><tr><th style="width:20%">Item</th><th style="width:40%">Why it matters</th><th>What to require / decision</th></tr>${g.items.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table>`).join('');
+/* ---------- tab 6 ---------- */
+const SEQ=[{"p": "0", "n": "Project setup & governance", "gate": "Bill confirms repo, decisions log and dev environment.", "s": [["Create a private GitHub repository owned by Bill; protect the main branch (no direct pushes, CI must pass)", "Security"], ["Copy BUILD_PLAN.html and BUILD_SEQUENCE.md into /docs; create BUILD_STATUS.md listing every step ID with status", "Tracking"], ["Create DECISIONS.md recording symbols, broker route, hosting and the Tab 5 decisions", "Tracking"], ["Write the locked holdout date range into DECISIONS.md before any historical data is downloaded", "Testing"], ["Set up the Windows dev environment with pinned Python and Rust versions and a lock file", "Build"], ["Secrets policy: .env files git-ignored, pre-commit secret scanner (gitleaks), no key ever in code or logs", "Security"], ["CI pipeline: lint, type checks, unit tests and dependency vulnerability scan on every push", "Security"]]}, {"p": "1", "n": "Foundation app (NautilusTrader)", "gate": "Bill installs the Windows app, clicks through demo mode and green-lights Phase 2.", "s": [["Install NautilusTrader (pinned version) and run a sample backtest", "Build"], ["Create project layout: engine/, risk/, strategies/, api/, app/, tests/, docs/", "Build"], ["Bundle a sample data pack so the app runs in demo mode with no accounts", "Build"], ["Define instruments MES, MCL, MGC, M6E, 10Y (active) and MNQ, MYM, MBT (configured, off)", "Engine"], ["Session calendar: CME hours, holidays, shortened sessions, daylight-saving switches, contract rollover dates", "Engine"], ["Run one symbol engine per contract inside a single node", "Engine"], ["Live state tracker per symbol: price, spread, book lean, ATR, VWAP, prior-day/overnight levels, position, P&L, contracts used", "Engine"], ["Daily fee filter: symbol qualifies only if target ticks \u00d7 tick value \u2265 2\u00d7 round-trip fees", "Risk"], ["Portfolio risk manager: buying power with 30\u201350% buffer, margin, daily loss, per-trade loss, per-symbol and total quotas, correlation groups, max 3 open positions, news blackout", "Risk"], ["Lock risk settings: read-only to every AI process; only the Owner role can change them, each change written to the audit log", "Security"], ["Kill switch: manual button plus automatic triggers on breach, data-feed failure and broker disconnect", "Risk"], ["Order safety: bracket orders, duplicate-order protection, reconcile open positions with broker on every restart", "Risk"], ["Starter strategy running on every symbol end to end", "Engine"], ["Backtest runner with results report", "Testing"], ["Control API between engine and apps: encrypted connection, authenticated, read endpoints plus start/stop/mode/kill commands", "Security"], ["Users and roles: Owner (full control), Approver (approve trades and kill switch only), Viewer (read-only)", "Users"], ["Login with password plus two-factor code, session timeout, lockout after failed attempts", "Users"], ["Encrypted secrets vault for API keys and broker logins (Windows protected storage locally, cloud secret manager on server)", "Security"], ["Append-only audit log: every login, command, setting change and order", "Security"], ["Windows desktop app: dashboard, symbol tiles, positions, P&L, start/stop, kill switch, backtest viewer, settings, demo-mode banner", "App"], ["Signed Windows installer with desktop icon; auto-update off unless Bill turns it on", "App"], ["Automated tests for risk manager, order handling, kill switch and restart reconciliation", "Testing"], ["Connect Databento and Interactive Brokers paper once Bill supplies keys", "Integrations"], ["Builder installs and clicks through the app, records a walkthrough video, updates BUILD_STATUS.md", "Tracking"]]}, {"p": "2", "n": "Repo extensions", "gate": "Bill reviews each add-on inside the app.", "s": [["Integrate hftbacktest for queue-position and latency simulation", "Testing"], ["Fill-realism report: ideal fills vs. queue-modeled fills per symbol", "Testing"], ["Integrate async_rithmic and test on a Rithmic test account", "Integrations"], ["Language-AI provider connection: key in vault, usage and monthly cost meter, timeout and outage alert", "Integrations"], ["AI supervisor service (TradingAgents pattern), read-only first, reading live state every 1\u20135 minutes", "AI"], ["Supervisor actions: shrink quota, pause symbol, trigger kill switch; prove it cannot loosen any limit", "Security"]]}, {"p": "3", "n": "Knowledge library & Training Center", "gate": "Bill uploads real material and approves a rulebook.", "s": [["Storage: file storage, metadata database and a search index per expert", "Build"], ["Upload service: resumable large files, bulk and folder, phone upload, duplicate detection, file-type checks, malware scan", "Security"], ["Link import: YouTube/Vimeo/course links, web page snapshots", "AI"], ["Processing workers: transcripts with timestamps and speakers, chart frame capture, OCR, document extraction, chunking", "AI"], ["Status pipeline: Uploaded \u2192 Processing \u2192 Needs review \u2192 Approved \u2192 Active \u2192 Retired / Failed (with reason)", "App"], ["Library screen: tags, quality rating, assign to experts, search that jumps to page or timestamp", "App"], ["Rulebook drafting with a citation on every rule; conflicting rules side by side; approve/edit/reject", "AI"], ["Code each approved rule as a measurable detector; flag the rest 'discretionary only'", "AI"], ["Chart annotation tool for setups, entry, stop, target", "App"], ["Auto-labeling over history with win/loss outcomes, plus an automated look-ahead check", "Testing"], ["Example count per setup with the 300+ target", "App"], ["Strategy ingestion verdict: five gates, Add / Reject / Needs more data card", "AI"], ["Training & Integrations Center screen: training runs, connection status lights", "App"], ["Storage, processing cost and audit views; retire and delete flows", "Security"]]}, {"p": "4", "n": "Expert AIs", "gate": "Bill sees all 7 experts reading the live chart with test reports.", "s": [["Expert template: library, rulebook, feature calculator, model, standard signal output", "AI"], ["Standard signal schema with a validator that rejects malformed signals", "AI"], ["Build expert: Order flow / tape", "AI"], ["Build expert: Auction / volume profile", "AI"], ["Build expert: Price action", "AI"], ["Build expert: Trend following", "AI"], ["Build expert: Mean reversion", "AI"], ["Build expert: Breakout / momentum (ORB)", "AI"], ["Build expert: Event-driven (filter)", "AI"], ["Model registry: version, training date, source list, one-click rollback", "AI"], ["Confidence calibration chart per expert", "Testing"], ["On/off and paper-only switches per expert", "App"], ["Approved Strategy Library with Candidate \u2192 Testing \u2192 Approved \u2192 Active \u2192 Retired", "App"], ["Ask the Expert chat with citations", "AI"]]}, {"p": "5", "n": "Regime, coordinator & supervisor", "gate": "Bill watches coordinator decisions on a live chart.", "s": [["Regime detector with live confidence", "AI"], ["Coordinator weighting experts by regime and proven accuracy", "AI"], ["Overlap grouping so structure experts count as one vote", "AI"], ["Adjustable trade threshold in settings", "App"], ["Decision log including no-trades, with every vote and weight", "Tracking"], ["Weekly re-weighting job using completed trades only, logged", "AI"], ["Live view: chart, regime, each expert's read, coordinator decision", "App"], ["Prove the coordinator cannot change risk settings", "Security"]]}, {"p": "6", "n": "Evaluation lab & paper trading", "gate": "60 trading days of paper results meet the agreed targets.", "s": [["Tick-level backtester with real commissions and slippage", "Testing"], ["Walk-forward runner", "Testing"], ["Holdout data partition locked; access logged", "Security"], ["Reports and side-by-side version comparison", "Testing"], ["Look-ahead audit document per feature", "Testing"], ["Drift monitoring and alerts per expert", "AI"], ["Start 60-day paper run with automatic weekly report", "Testing"]]}, {"p": "7", "n": "Prop-firm execution, server & live", "gate": "Live with approval on 1 contract meets targets; Bill unlocks automatic.", "s": [["Prop-firm route: Rithmic or custom Tradovate adapter, matching the firm's written approval", "Integrations"], ["Prop-firm rules per account: trailing drawdown, daily limit, consistency, contract limits, hours, flat-by time", "Risk"], ["Multi-account copy with per-account limits", "Risk"], ["Slippage recorded on every fill", "Testing"], ["All four modes; approval requests expire as 'rejected' if unanswered", "Risk"], ["Provision a Chicago-area server: hardened OS, firewall, private VPN access only, security patches outside trading hours", "Security"], ["Deployment pipeline: deploy only when flat and outside trading hours, one-step rollback", "Security"], ["Uptime monitoring and phone alerts", "Ops"], ["Daily encrypted backups and a tested restore", "Security"], ["Live with approval on 1 contract", "Risk"], ["Unlock criteria for fully automatic recorded in DECISIONS.md", "Tracking"]]}, {"p": "8", "n": "Mac & phone apps", "gate": "Bill runs the apps on his own devices.", "s": [["Mac desktop app connected to the engine", "App"], ["iPhone and Android app from one shared codebase: status, P&L, regime, alerts", "App"], ["Phone security: two-factor login, biometric unlock, registered devices, remote revoke", "Users"], ["Push notifications for trades, breaches and failures", "App"], ["Approve/reject and kill switch from phone, each action audit-logged", "Security"], ["Private distribution (TestFlight / internal testing), not public app stores", "App"]]}, {"p": "9", "n": "Hardening & handover", "gate": "Bill signs off handover.", "s": [["Security review: dependency scan, secrets audit, access review, penetration checklist", "Security"], ["Disaster recovery drill: kill server, restore from backup, reconcile positions", "Security"], ["Operations and incident runbooks", "Docs"], ["Trade journal export for accountant", "App"], ["Full walkthrough recording", "Docs"], ["Handover: repo, data licenses and all accounts confirmed in Bill's name", "Docs"]]}];
+const TRK=[...new Set(SEQ.flatMap(p=>p.s.map(x=>x[1])))];
+let trk="All";const ICON={done:'✅',in_progress:'🔄',blocked:'⛔'};
+document.getElementById('trk').innerHTML=TRK.map(t=>`<span class="pill">${t}</span>`).join(' ');
+document.getElementById('sFil').innerHTML=["All",...TRK].map(t=>`<button class="${t==='All'?'on':''}" data-k="${t}">${t}</button>`).join('');
+document.querySelectorAll('#sFil button').forEach(b=>b.onclick=()=>{trk=b.dataset.k;document.querySelectorAll('#sFil button').forEach(x=>x.classList.toggle('on',x===b));renderS()});
+const sid=(p,i)=>p+'.'+String(i+1).padStart(2,'0');
+function renderS(){let tot=0,d=0;const open=[...document.querySelectorAll('#seq .ms')].map(x=>x.open);
+document.getElementById('seq').innerHTML=SEQ.map((ph,pi)=>{let pd=0;const rows=ph.s.map((st,i)=>{const k=sid(ph.p,i),r=BS.steps[k]||{},on=r.status==='done';tot++;if(on){d++;pd++}if(trk!=='All'&&st[1]!==trk)return'';const cur=BS.current_step===k;return `<div class="ck ${on?'done':''}" style="${cur?'background:#12302d;border-radius:6px;padding-left:6px':''}"><span style="width:18px;flex-shrink:0">${ICON[r.status]||'○'}</span><span><b style="color:var(--acc2)">${k}</b> &nbsp;${st[0]} <span class="pill" style="font-size:11px">${st[1]}</span>${cur?' <span class="pill t">CURRENT</span>':''}${r.proof?`<br><small style="color:var(--mut)">Proof: ${esc(r.proof)}${r.date?' · '+esc(r.date):''}</small>`:''}${r.note?`<br><small style="color:var(--warn)">${esc(r.note)}</small>`:''}</span></div>`}).join('');const pc=Math.round(pd/ph.s.length*100);const g=BS.gates[ph.p]||{};const gs=g.status==='passed'?'<span class="pill g">GATE PASSED</span>':g.status==='awaiting_bill'?'<span class="pill w">AWAITING YOUR REVIEW</span>':'';return `<details class="ms" ${open.length?(open[pi]?'open':''):(pi<2?'open':'')}><summary><span>Phase ${ph.p} · ${ph.n} ${gs}</span><span style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mut)">${pd}/${ph.s.length}<span class="bar"><b style="width:${pc}%"></b></span></span></summary><div class="body">${rows||'<p style="color:var(--mut)">No steps in this track.</p>'}<div class="note" style="margin-top:12px"><b>GATE — builder stops here:</b> ${ph.gate}${g.date?' · '+esc(g.date):''}</div></div></details>`}).join('');
+const p=Math.round(d/tot*100);document.getElementById('sPct').textContent=p+'%';document.getElementById('sBar').style.width=p+'%';document.getElementById('sCnt').textContent=d+' of '+tot+' steps complete (set by builder)';
+const cs=BS.current_step,cur=SEQ.flatMap(ph=>ph.s.map((s,i)=>[sid(ph.p,i),s[0]])).find(x=>x[0]===cs);document.getElementById('liveStatus').innerHTML=`<b>Live build status</b> &nbsp;<span class="pill t">${p}% of build steps done</span><br>Current step: <b>${esc(cs||'—')}</b> ${cur?esc(cur[1]):''}<br><small style="color:var(--mut)">Last updated by builder: ${esc(BS.updated||'not started')}</small>`}
+function seqMD(){return "# BUILD_SEQUENCE \u2014 Multi-Expert AI Trading System\n\nSource of truth: docs/BUILD_PLAN.html (Tabs 1\u20136). This file is the builder's work order.\n\n## Status protocol\n- Record progress in TWO places after every step:\n  1. The JSON inside `<script id=\"build-status\">` in docs/BUILD_PLAN.html (edit only that block; keep it valid JSON).\n  2. BUILD_STATUS.md (same IDs, human-readable).\n- `steps[\"1.04\"] = {\"status\":\"done|in_progress|blocked\",\"date\":\"YYYY-MM-DD HH:MM CT\",\"proof\":\"test file + result, screenshot or report path\",\"note\":\"\"}`\n- `checks[\"C1.04\"] = {\"status\":\"built\",\"date\":\"...\",\"proof\":\"...\"}` \u2014 set only after the Tab 3 item passes the phase cross-check. Never set Bill's \"verified\" tick.\n- `gates[\"1\"] = {\"status\":\"awaiting_bill|passed\",\"date\":\"...\"}` \u2014 only Bill's green light sets \"passed\".\n- Always update `updated` and `current_step`.\n\n## Phase 0 \u2014 Project setup & governance\n\n### Build steps\n- [ ] **0.01** Create a private GitHub repository owned by Bill; protect the main branch (no direct pushes, CI must pass) _(Security)_\n- [ ] **0.02** Copy BUILD_PLAN.html and BUILD_SEQUENCE.md into /docs; create BUILD_STATUS.md listing every step ID with status _(Tracking)_\n- [ ] **0.03** Create DECISIONS.md recording symbols, broker route, hosting and the Tab 5 decisions _(Tracking)_\n- [ ] **0.04** Write the locked holdout date range into DECISIONS.md before any historical data is downloaded _(Testing)_\n- [ ] **0.05** Set up the Windows dev environment with pinned Python and Rust versions and a lock file _(Build)_\n- [ ] **0.06** Secrets policy: .env files git-ignored, pre-commit secret scanner (gitleaks), no key ever in code or logs _(Security)_\n- [ ] **0.07** CI pipeline: lint, type checks, unit tests and dependency vulnerability scan on every push _(Security)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C0.01** Build plan (this file) reviewed and green-lit\n- [ ] **C0.02** Contract states Bill owns all code, models, data and documentation\n- [ ] **C0.03** Milestone payments tied to checklist items shown working\n- [ ] **C0.04** Databento account opened in Bill's name\n- [ ] **C0.05** Interactive Brokers paper account opened in Bill's name\n- [ ] **C0.06** Written automation approval from each prop firm \u2014 PROOF required emails on file\n- [ ] **C0.07** Monthly operating cost estimate agreed\n- [ ] **C0.08** Target metrics agreed: profit factor above 1.3, max drawdown inside prop-firm limit\n- [ ] **C0.09** Holdout period dates written down before any training \u2014 PROOF required\n\n> **GATE:** Bill confirms repo, decisions log and dev environment.\n\n## Phase 1 \u2014 Foundation app (NautilusTrader)\n\n### Build steps\n- [ ] **1.01** Install NautilusTrader (pinned version) and run a sample backtest _(Build)_\n- [ ] **1.02** Create project layout: engine/, risk/, strategies/, api/, app/, tests/, docs/ _(Build)_\n- [ ] **1.03** Bundle a sample data pack so the app runs in demo mode with no accounts _(Build)_\n- [ ] **1.04** Define instruments MES, MCL, MGC, M6E, 10Y (active) and MNQ, MYM, MBT (configured, off) _(Engine)_\n- [ ] **1.05** Session calendar: CME hours, holidays, shortened sessions, daylight-saving switches, contract rollover dates _(Engine)_\n- [ ] **1.06** Run one symbol engine per contract inside a single node _(Engine)_\n- [ ] **1.07** Live state tracker per symbol: price, spread, book lean, ATR, VWAP, prior-day/overnight levels, position, P&L, contracts used _(Engine)_\n- [ ] **1.08** Daily fee filter: symbol qualifies only if target ticks \u00d7 tick value \u2265 2\u00d7 round-trip fees _(Risk)_\n- [ ] **1.09** Portfolio risk manager: buying power with 30\u201350% buffer, margin, daily loss, per-trade loss, per-symbol and total quotas, correlation groups, max 3 open positions, news blackout _(Risk)_\n- [ ] **1.10** Lock risk settings: read-only to every AI process; only the Owner role can change them, each change written to the audit log _(Security)_\n- [ ] **1.11** Kill switch: manual button plus automatic triggers on breach, data-feed failure and broker disconnect _(Risk)_\n- [ ] **1.12** Order safety: bracket orders, duplicate-order protection, reconcile open positions with broker on every restart _(Risk)_\n- [ ] **1.13** Starter strategy running on every symbol end to end _(Engine)_\n- [ ] **1.14** Backtest runner with results report _(Testing)_\n- [ ] **1.15** Control API between engine and apps: encrypted connection, authenticated, read endpoints plus start/stop/mode/kill commands _(Security)_\n- [ ] **1.16** Users and roles: Owner (full control), Approver (approve trades and kill switch only), Viewer (read-only) _(Users)_\n- [ ] **1.17** Login with password plus two-factor code, session timeout, lockout after failed attempts _(Users)_\n- [ ] **1.18** Encrypted secrets vault for API keys and broker logins (Windows protected storage locally, cloud secret manager on server) _(Security)_\n- [ ] **1.19** Append-only audit log: every login, command, setting change and order _(Security)_\n- [ ] **1.20** Windows desktop app: dashboard, symbol tiles, positions, P&L, start/stop, kill switch, backtest viewer, settings, demo-mode banner _(App)_\n- [ ] **1.21** Signed Windows installer with desktop icon; auto-update off unless Bill turns it on _(App)_\n- [ ] **1.22** Automated tests for risk manager, order handling, kill switch and restart reconciliation _(Testing)_\n- [ ] **1.23** Connect Databento and Interactive Brokers paper once Bill supplies keys _(Integrations)_\n- [ ] **1.24** Builder installs and clicks through the app, records a walkthrough video, updates BUILD_STATUS.md _(Tracking)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C1.01** NautilusTrader installed in Bill's repository with a clean project layout\n- [ ] **C1.02** Windows desktop app installs with an icon and opens with a double-click\n- [ ] **C1.03** Demo mode runs on sample data with no keys connected\n- [ ] **C1.04** Symbol engines running together in one system\n- [ ] **C1.05** Live status per symbol: price, spread, ATR, VWAP, prior-day and overnight levels, position, P&L, contracts used\n- [ ] **C1.06** Daily fee filter (target ticks \u00d7 tick value \u2265 2\u00d7 round-trip fees) calculated per symbol\n- [ ] **C1.07** Portfolio risk manager: buying power with buffer, margin, daily loss, per-trade loss, quotas\n- [ ] **C1.08** Cap on positions moving in the same direction; max 3 open portfolio-wide\n- [ ] **C1.09** No new entries within X minutes of scheduled news\n- [ ] **C1.10** Starter strategy runs on every symbol end to end\n- [ ] **C1.11** Backtests over historical data with a results report\n- [ ] **C1.12** Manual kill switch flattens everything \u2014 PROOF required demo on paper\n- [ ] **C1.13** Automatic kill on breach, data failure and broker disconnect \u2014 PROOF required demo each\n- [ ] **C1.14** Duplicate-order protection \u2014 PROOF required same signal twice, one order\n- [ ] **C1.15** Restart reads open positions before acting\n- [ ] **C1.16** API keys stored in an encrypted vault, never in code\n- [ ] **C1.17** Automated tests for risk layer and order handling passing\n- [ ] **C1.18** Databento and IBKR paper connected once keys are supplied\n\n> **GATE:** Bill installs the Windows app, clicks through demo mode and green-lights Phase 2.\n\n## Phase 2 \u2014 Repo extensions\n\n### Build steps\n- [ ] **2.01** Integrate hftbacktest for queue-position and latency simulation _(Testing)_\n- [ ] **2.02** Fill-realism report: ideal fills vs. queue-modeled fills per symbol _(Testing)_\n- [ ] **2.03** Integrate async_rithmic and test on a Rithmic test account _(Integrations)_\n- [ ] **2.04** Language-AI provider connection: key in vault, usage and monthly cost meter, timeout and outage alert _(Integrations)_\n- [ ] **2.05** AI supervisor service (TradingAgents pattern), read-only first, reading live state every 1\u20135 minutes _(AI)_\n- [ ] **2.06** Supervisor actions: shrink quota, pause symbol, trigger kill switch; prove it cannot loosen any limit _(Security)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C2.01** hftbacktest integrated: queue position and latency simulation\n- [ ] **C2.02** async_rithmic connection working on a test account\n- [ ] **C2.03** AI supervisor built on the TradingAgents pattern, reading state every 1\u20135 minutes\n- [ ] **C2.04** Supervisor can pause symbols, move quota and trigger kill switch, and cannot loosen limits \u2014 PROOF required show it blocked\n\n> **GATE:** Bill reviews each add-on inside the app.\n\n## Phase 3 \u2014 Knowledge library & Training Center\n\n### Build steps\n- [ ] **3.01** Storage: file storage, metadata database and a search index per expert _(Build)_\n- [ ] **3.02** Upload service: resumable large files, bulk and folder, phone upload, duplicate detection, file-type checks, malware scan _(Security)_\n- [ ] **3.03** Link import: YouTube/Vimeo/course links, web page snapshots _(AI)_\n- [ ] **3.04** Processing workers: transcripts with timestamps and speakers, chart frame capture, OCR, document extraction, chunking _(AI)_\n- [ ] **3.05** Status pipeline: Uploaded \u2192 Processing \u2192 Needs review \u2192 Approved \u2192 Active \u2192 Retired / Failed (with reason) _(App)_\n- [ ] **3.06** Library screen: tags, quality rating, assign to experts, search that jumps to page or timestamp _(App)_\n- [ ] **3.07** Rulebook drafting with a citation on every rule; conflicting rules side by side; approve/edit/reject _(AI)_\n- [ ] **3.08** Code each approved rule as a measurable detector; flag the rest 'discretionary only' _(AI)_\n- [ ] **3.09** Chart annotation tool for setups, entry, stop, target _(App)_\n- [ ] **3.10** Auto-labeling over history with win/loss outcomes, plus an automated look-ahead check _(Testing)_\n- [ ] **3.11** Example count per setup with the 300+ target _(App)_\n- [ ] **3.12** Strategy ingestion verdict: five gates, Add / Reject / Needs more data card _(AI)_\n- [ ] **3.13** Training & Integrations Center screen: training runs, connection status lights _(App)_\n- [ ] **3.14** Storage, processing cost and audit views; retire and delete flows _(Security)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C3.01** Upload works for MP3, WAV, M4A, MP4, MOV, PDF, scanned PDF, DOCX, PPTX, EPUB, TXT, CSV, XLSX, PNG, JPG\n- [ ] **C3.02** YouTube/Vimeo/course links import and transcribe\n- [ ] **C3.03** Web links snapshotted at upload\n- [ ] **C3.04** Bulk, folder and phone upload\n- [ ] **C3.05** Duplicate files detected\n- [ ] **C3.06** 5 GB+ video uploads and resumes after a dropped connection\n- [ ] **C3.07** Transcripts with timestamps and speaker labels \u2014 PROOF required open one\n- [ ] **C3.08** Scanned PDFs OCR'd and searchable\n- [ ] **C3.09** Chart frames from video captured and linked\n- [ ] **C3.10** Status pipeline with failure reasons\n- [ ] **C3.11** Sources assignable to one or more experts; tags, quality rating, search, filters\n- [ ] **C3.12** Search result jumps to exact page or timestamp\n- [ ] **C3.13** Retire/delete removes a source from the next training run\n- [ ] **C3.14** Audit log of every upload, edit and deletion\n- [ ] **C3.15** AI drafts a rulebook per expert with a citation on every rule\n- [ ] **C3.16** Conflicting rules flagged side by side\n- [ ] **C3.17** Approve / edit / reject each rule\n- [ ] **C3.18** Each approved rule has a coded test or is marked discretionary \u2014 PROOF required rule-to-code list\n- [ ] **C3.19** Chart annotation tool for setups, entry, stop, target\n- [ ] **C3.20** Auto-labeling records win/loss over history\n- [ ] **C3.21** Example count per setup shown (300+ target)\n- [ ] **C3.22** Video strategy ingestion produces an Add / Reject / Needs-more-data verdict\n\n> **GATE:** Bill uploads real material and approves a rulebook.\n\n## Phase 4 \u2014 Expert AIs\n\n### Build steps\n- [ ] **4.01** Expert template: library, rulebook, feature calculator, model, standard signal output _(AI)_\n- [ ] **4.02** Standard signal schema with a validator that rejects malformed signals _(AI)_\n- [ ] **4.03** Build expert: Order flow / tape _(AI)_\n- [ ] **4.04** Build expert: Auction / volume profile _(AI)_\n- [ ] **4.05** Build expert: Price action _(AI)_\n- [ ] **4.06** Build expert: Trend following _(AI)_\n- [ ] **4.07** Build expert: Mean reversion _(AI)_\n- [ ] **4.08** Build expert: Breakout / momentum (ORB) _(AI)_\n- [ ] **4.09** Build expert: Event-driven (filter) _(AI)_\n- [ ] **4.10** Model registry: version, training date, source list, one-click rollback _(AI)_\n- [ ] **4.11** Confidence calibration chart per expert _(Testing)_\n- [ ] **4.12** On/off and paper-only switches per expert _(App)_\n- [ ] **4.13** Approved Strategy Library with Candidate \u2192 Testing \u2192 Approved \u2192 Active \u2192 Retired _(App)_\n- [ ] **4.14** Ask the Expert chat with citations _(AI)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C4.01** Expert has its own library, rulebook and feature calculator\n- [ ] **C4.02** Outputs the exact standard signal format \u2014 PROOF required sample JSON from live data\n- [ ] **C4.03** Plain-English reasoning with cited sources on every signal\n- [ ] **C4.04** Version history with source list and one-click rollback\n- [ ] **C4.05** Backtest and walk-forward report by instrument, session and regime \u2014 PROOF required\n- [ ] **C4.06** Locked holdout result \u2014 PROOF required holdout dates stated before training\n- [ ] **C4.07** Confidence calibration chart\n- [ ] **C4.08** On/off and paper-only switches\n- [ ] **C4.09** 200+ test trades behind each expert\n- [ ] **C4.10** Ask-the-expert chat answers with citations\n- [ ] **C4.11** Approved Strategy Library screen with status per strategy\n\n> **GATE:** Bill sees all 7 experts reading the live chart with test reports.\n\n## Phase 5 \u2014 Regime, coordinator & supervisor\n\n### Build steps\n- [ ] **5.01** Regime detector with live confidence _(AI)_\n- [ ] **5.02** Coordinator weighting experts by regime and proven accuracy _(AI)_\n- [ ] **5.03** Overlap grouping so structure experts count as one vote _(AI)_\n- [ ] **5.04** Adjustable trade threshold in settings _(App)_\n- [ ] **5.05** Decision log including no-trades, with every vote and weight _(Tracking)_\n- [ ] **5.06** Weekly re-weighting job using completed trades only, logged _(AI)_\n- [ ] **5.07** Live view: chart, regime, each expert's read, coordinator decision _(App)_\n- [ ] **5.08** Prove the coordinator cannot change risk settings _(Security)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C5.01** Regime shown live with confidence\n- [ ] **C5.02** Coordinator weights experts by regime \u2014 PROOF required weight table per regime\n- [ ] **C5.03** Overlapping experts grouped as one vote\n- [ ] **C5.04** Adjustable trade threshold\n- [ ] **C5.05** Every decision logged, including no-trades, with votes and weights\n- [ ] **C5.06** Weekly re-weighting runs and is logged\n- [ ] **C5.07** Coordinator cannot change risk settings \u2014 PROOF required show it blocked\n\n> **GATE:** Bill watches coordinator decisions on a live chart.\n\n## Phase 6 \u2014 Evaluation lab & paper trading\n\n### Build steps\n- [ ] **6.01** Tick-level backtester with real commissions and slippage _(Testing)_\n- [ ] **6.02** Walk-forward runner _(Testing)_\n- [ ] **6.03** Holdout data partition locked; access logged _(Security)_\n- [ ] **6.04** Reports and side-by-side version comparison _(Testing)_\n- [ ] **6.05** Look-ahead audit document per feature _(Testing)_\n- [ ] **6.06** Drift monitoring and alerts per expert _(AI)_\n- [ ] **6.07** Start 60-day paper run with automatic weekly report _(Testing)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C6.01** Tick-level backtester with commissions and slippage\n- [ ] **C6.02** Walk-forward testing\n- [ ] **C6.03** Full report set: profit factor, expectancy, drawdown, Sharpe, win rate, avg win/loss, trade count\n- [ ] **C6.04** Side-by-side version comparison\n- [ ] **C6.05** Each feature uses only data available at that moment \u2014 PROOF required developer explanation\n- [ ] **C6.06** 60 trading days of paper trading \u2014 PROOF required paper results report\n- [ ] **C6.07** Live drift alert per expert\n\n> **GATE:** 60 trading days of paper results meet the agreed targets.\n\n## Phase 7 \u2014 Prop-firm execution, server & live\n\n### Build steps\n- [ ] **7.01** Prop-firm route: Rithmic or custom Tradovate adapter, matching the firm's written approval _(Integrations)_\n- [ ] **7.02** Prop-firm rules per account: trailing drawdown, daily limit, consistency, contract limits, hours, flat-by time _(Risk)_\n- [ ] **7.03** Multi-account copy with per-account limits _(Risk)_\n- [ ] **7.04** Slippage recorded on every fill _(Testing)_\n- [ ] **7.05** All four modes; approval requests expire as 'rejected' if unanswered _(Risk)_\n- [ ] **7.06** Provision a Chicago-area server: hardened OS, firewall, private VPN access only, security patches outside trading hours _(Security)_\n- [ ] **7.07** Deployment pipeline: deploy only when flat and outside trading hours, one-step rollback _(Security)_\n- [ ] **7.08** Uptime monitoring and phone alerts _(Ops)_\n- [ ] **7.09** Daily encrypted backups and a tested restore _(Security)_\n- [ ] **7.10** Live with approval on 1 contract _(Risk)_\n- [ ] **7.11** Unlock criteria for fully automatic recorded in DECISIONS.md _(Tracking)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C7.01** Tradovate and/or Rithmic connection live on paper\n- [ ] **C7.02** Bracket orders (entry, stop, target) sent together\n- [ ] **C7.03** Prop-firm rules per account: trailing drawdown, daily limit, consistency, hours, flat-by time\n- [ ] **C7.04** Multi-account copy with per-account limits\n- [ ] **C7.05** Slippage recorded on every fill\n- [ ] **C7.06** All four modes work: Research, Paper, Live with approval, Fully automatic\n- [ ] **C7.07** Live with approval on 1 contract\n- [ ] **C7.08** Fully automatic unlocked only after approval stage meets targets\n\n> **GATE:** Live with approval on 1 contract meets targets; Bill unlocks automatic.\n\n## Phase 8 \u2014 Mac & phone apps\n\n### Build steps\n- [ ] **8.01** Mac desktop app connected to the engine _(App)_\n- [ ] **8.02** iPhone and Android app from one shared codebase: status, P&L, regime, alerts _(App)_\n- [ ] **8.03** Phone security: two-factor login, biometric unlock, registered devices, remote revoke _(Users)_\n- [ ] **8.04** Push notifications for trades, breaches and failures _(App)_\n- [ ] **8.05** Approve/reject and kill switch from phone, each action audit-logged _(Security)_\n- [ ] **8.06** Private distribution (TestFlight / internal testing), not public app stores _(App)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C8.01** Mac desktop app connects to the engine\n- [ ] **C8.02** iPhone app: status, approvals, alerts, kill switch\n- [ ] **C8.03** Android app: status, approvals, alerts, kill switch\n- [ ] **C8.04** Phone login uses two-factor authentication\n- [ ] **C8.05** Phone alerts for trades, breaches and system failures\n\n> **GATE:** Bill runs the apps on his own devices.\n\n## Phase 9 \u2014 Hardening & handover\n\n### Build steps\n- [ ] **9.01** Security review: dependency scan, secrets audit, access review, penetration checklist _(Security)_\n- [ ] **9.02** Disaster recovery drill: kill server, restore from backup, reconcile positions _(Security)_\n- [ ] **9.03** Operations and incident runbooks _(Docs)_\n- [ ] **9.04** Trade journal export for accountant _(App)_\n- [ ] **9.05** Full walkthrough recording _(Docs)_\n- [ ] **9.06** Handover: repo, data licenses and all accounts confirmed in Bill's name _(Docs)_\n\n### Tab 3 checklist items to cross-check at the gate\n- [ ] **C9.01** Engine runs on a server near Chicago, not a laptop\n- [ ] **C9.02** Daily automatic backups and a tested restore\n- [ ] **C9.03** Uptime monitoring with alerts\n- [ ] **C9.04** Trade journal exports for your accountant\n- [ ] **C9.05** Full source code in a repository Bill owns\n- [ ] **C9.06** Setup and operations documentation\n- [ ] **C9.07** Data licenses and all accounts in Bill's name\n- [ ] **C9.08** Walkthrough recording of the whole system\n\n> **GATE:** Bill signs off handover.\n\n"}
+function dlMD(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([seqMD()],{type:'text/markdown'}));a.download='BUILD_SEQUENCE.md';a.click()}
+renderS();
+
+</script>
+</body>
+</html>
