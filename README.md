@@ -11,6 +11,10 @@ proven experts agree, and a fixed risk layer no AI can change, built on
 | Live build progress | [`BUILD_STATUS.md`](BUILD_STATUS.md) |
 | Decisions and departures | [`DECISIONS.md`](DECISIONS.md) |
 | Secrets policy | [`docs/SECURITY.md`](docs/SECURITY.md) |
+| Cost plan and historical-data plan | [`docs/COST_ESTIMATE.md`](docs/COST_ESTIMATE.md) |
+
+## Install the app on your Windows PC
+See [`docs/INSTALL_WINDOWS.md`](docs/INSTALL_WINDOWS.md): one PowerShell block, no GitHub sign-in.
 
 ## Developer setup (Windows)
 ```powershell

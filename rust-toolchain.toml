@@ -1,0 +1,6 @@
+# Matches the toolchain NautilusTrader v1.231.0 is built with (needed only to build Nautilus or
+# hftbacktest from source; the pinned Python wheels do not require it).
+[toolchain]
+channel = "1.97.1"
+profile = "minimal"
+components = ["rustfmt", "clippy"]

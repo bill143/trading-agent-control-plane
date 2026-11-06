@@ -1,0 +1,7 @@
+{
+  "name": "tacp-ui-walkthrough",
+  "private": true,
+  "description": "End-to-end walkthrough of the desktop dashboard (step 1.24): screenshots and video.",
+  "scripts": { "walkthrough": "node walkthrough.js" },
+  "devDependencies": { "playwright": "1.63.0" }
+}

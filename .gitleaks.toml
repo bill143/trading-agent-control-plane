@@ -1,0 +1,23 @@
+# Gitleaks configuration: the full default rule set plus project-specific rules.
+title = "trading-agent-control-plane"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "databento-api-key"
+description = "Databento API key"
+regex = '''\bdb-[A-Za-z0-9]{29}\b'''
+keywords = ["db-"]
+
+[[rules]]
+id = "vercel-token"
+description = "Vercel access token"
+regex = '''\bvc[pk]_[A-Za-z0-9]{40,}\b'''
+keywords = ["vcp_", "vck_"]
+
+[[rules]]
+id = "generic-broker-credential"
+description = "Broker / data-vendor credential assigned in code or config"
+regex = '''(?i)\b(ib|ibkr|rithmic|tradovate|databento)[_-]?(password|passwd|secret|api[_-]?key|token)\b\s*[:=]\s*["']?[^\s"'#]{8,}'''
+keywords = ["ib", "rithmic", "tradovate", "databento"]
