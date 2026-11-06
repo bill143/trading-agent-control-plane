@@ -38,7 +38,12 @@ dev = [
 package = false
 # NautilusTrader 1.231.0 pins fsspec==2026.2.0, which has CVE-2026-104851 (GHSA-27vj-qcqg-25rc,
 # code execution via ReferenceFileSystem). Override to the fixed release; see DECISIONS.md D-04.
-override-dependencies = ["fsspec>=2026.6.0"]
+override-dependencies = [
+    "fsspec>=2026.6.0",
+    # databento pulls pip-system-certs on Windows, which patches Python's ssl module process-wide
+    # at start-up. TLS behaviour must not change silently (DECISIONS.md D-14): never install it.
+    "pip-system-certs; sys_platform == 'never'",
+]
 required-version = ">=0.11"
 
 [tool.ruff]

@@ -8,7 +8,10 @@ resolution-markers = [
 ]
 
 [manifest]
-overrides = [{ name = "fsspec", specifier = ">=2026.6.0" }]
+overrides = [
+    { name = "fsspec", specifier = ">=2026.6.0" },
+    { name = "pip-system-certs", marker = "sys_platform == 'never'" },
+]
 
 [[package]]
 name = "aiohappyeyeballs"
@@ -457,7 +460,7 @@ dependencies = [
     { name = "databento-dbn" },
     { name = "numpy" },
     { name = "pandas" },
-    { name = "pip-system-certs", marker = "sys_platform == 'win32'" },
+    { name = "pip-system-certs", marker = "sys_platform == 'never'" },
     { name = "pyarrow" },
     { name = "requests" },
     { name = "zstandard" },

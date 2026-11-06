@@ -166,3 +166,11 @@ def test_ruleset_requires_every_ci_job() -> None:
     }
     assert contexts <= expanded
     assert {r["type"] for r in ruleset["rules"]} >= {"pull_request", "non_fast_forward", "deletion"}
+
+
+def test_no_dependency_patches_ssl_globally() -> None:
+    """pip-system-certs rewrites Python's TLS verification process-wide (DECISIONS.md D-14)."""
+    lock = (ROOT / "uv.lock").read_text(encoding="utf-8")
+    refs = [ln for ln in lock.splitlines() if '{ name = "pip-system-certs"' in ln]
+    assert refs, "expected the override reference in uv.lock"
+    assert all("sys_platform == 'never'" in ln for ln in refs)
