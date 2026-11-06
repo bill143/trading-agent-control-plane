@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import secrets
 import socket
 import ssl
@@ -9,6 +10,7 @@ import threading
 import time
 from collections.abc import Iterator
 from datetime import UTC, date, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -300,7 +302,7 @@ def test_backtest_via_api(env: Env) -> None:
     run_id = body["runs"][0]["run_id"]
     page = env.client.get(f"/api/backtests/{run_id}/report", headers=h)
     assert page.status_code == 200
-    assert "Backtest results" in page.text
+    assert "Pipeline test only, not a result" in page.text
     assert env.client.get("/api/backtests/..%2f..%2fetc/report", headers=h).status_code in (
         404,
         409,
@@ -363,3 +365,25 @@ def test_ai_principal_blocked_from_settings_in_service(env: Env) -> None:
     ai = Principal("supervisor", Role.OWNER, PrincipalKind.AI)
     with pytest.raises(NotAuthorized):
         env.service.update_settings(ai, {"daily_loss_limit": "5000"})
+
+
+def test_data_quote_owner_only_and_needs_key(env: Env) -> None:
+    from tests.test_data_plan import FakeMetadata  # noqa: PLC0415
+
+    h = env.login("bill")
+    r = env.client.post("/api/data/quote", headers=h)
+    assert r.status_code == 409
+    assert "Databento API key" in r.json()["detail"]
+    env.client.put(
+        "/api/secrets/databento.api_key",
+        headers=h,
+        json={"value": "db-NOT-A-REAL-KEY-000000000000"},
+    )
+    env.service.cost_client_factory = lambda key: FakeMetadata()
+    assert env.client.post("/api/data/quote", headers=h).status_code == 200
+    wait_for(lambda: env.client.get("/api/data/quote", headers=h).json()["state"] == "finished")
+    body = env.client.get("/api/data/quote", headers=h).json()
+    assert Decimal(body["totals"]["all"]) > 0
+    assert "NOT-A-REAL-KEY" not in json.dumps(body)
+    viewer = add_user(env, h, "guest", Role.VIEWER)
+    assert env.client.get("/api/data/quote", headers=viewer).status_code == 403

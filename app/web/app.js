@@ -281,7 +281,8 @@ async function loadBacktests(quiet = false) {
     const st = r.status.state;
     $("#bt-status").textContent = st === "running" ? "Backtest running… (about a minute)" : st === "error" ? `Last run failed: ${r.status.error}` : "";
     $("#bt-run").disabled = st === "running" || !can("run_backtest");
-    $("#bt-list tbody").innerHTML = r.runs.map((x) => `<tr><td>${esc(x.run_id)}</td><td>${x.dates.length}</td><td>${x.trades}</td><td class="${signCls(x.net_pnl)}">${money(x.net_pnl)}</td><td>${x.profit_factor === null ? "—" : num(x.profit_factor)}</td><td>${money(x.max_drawdown)}</td><td><button data-run="${esc(x.run_id)}">Open report</button></td></tr>`).join("") || `<tr><td colspan="7" class="mut left">No backtests yet. Press “Run backtest”.</td></tr>`;
+    state.runLabels = Object.fromEntries(r.runs.map((x) => [x.run_id, x.result_label || ""]));
+    $("#bt-list tbody").innerHTML = r.runs.map((x) => `<tr><td>${esc(x.run_id)}${x.result_label ? `<br><span class="pill no">${esc(x.result_label)}</span>` : ""}</td><td>${x.dates.length}</td><td>${x.trades}</td><td class="${signCls(x.net_pnl)}">${money(x.net_pnl)}</td><td>${x.profit_factor === null ? "—" : num(x.profit_factor)}</td><td>${money(x.max_drawdown)}</td><td><button data-run="${esc(x.run_id)}">Open report</button></td></tr>`).join("") || `<tr><td colspan="7" class="mut left">No backtests yet. Press “Run backtest”.</td></tr>`;
     $$("#bt-list [data-run]").forEach((b) => b.addEventListener("click", () => openReport(b.dataset.run)));
   } catch (ex) { if (!quiet) toast(ex.message, true); }
 }
@@ -289,7 +290,8 @@ async function openReport(id) {
   try {
     const html = await api(`/api/backtests/${encodeURIComponent(id)}/report`);
     $("#bt-report").srcdoc = html;
-    $("#bt-report-title").textContent = `Report ${id}`;
+    const lbl = (state.runLabels || {})[id];
+    $("#bt-report-title").textContent = lbl ? `Report ${id}: ${lbl}` : `Report ${id}`;
     $("#bt-report-card").hidden = false;
     $("#bt-report-card").scrollIntoView({ behavior: "smooth" });
   } catch (ex) { toast(ex.message, true); }
@@ -321,6 +323,7 @@ async function loadSettings() {
     $("#risk-save").hidden = !r.editable;
     if (can("manage_secrets")) { const s = await api("/api/secrets"); $("#secret-list").innerHTML = s.names.map((n) => `<li>${esc(n)} ✓ stored</li>`).join("") || `<li class="mut">No connections saved yet.</li>`; }
     if (can("manage_users")) loadUsers();
+    if (can("manage_secrets")) loadQuote();
     const roots = (state.last?.symbols || []).map((t) => t.root);
     $("#fault-root").innerHTML = roots.map((r2) => `<option>${esc(r2)}</option>`).join("") || "<option value=''>start the engine first</option>";
   } catch (ex) { toast(ex.message, true); }
@@ -344,6 +347,22 @@ $("#secret-form").addEventListener("submit", async (e) => {
   const f = new FormData(e.target);
   try { await api(`/api/secrets/${encodeURIComponent(f.get("name"))}`, { method: "PUT", body: { value: f.get("value") } }); e.target.reset(); toast("Saved to the encrypted vault"); loadSettings(); } catch (ex) { toast(ex.message, true); }
 });
+async function loadQuote() {
+  try {
+    const q = await api("/api/data/quote");
+    const st = $("#quote-status");
+    if (q.state === "running") { st.textContent = "Asking Databento… (about a minute)"; setTimeout(loadQuote, 3000); }
+    else if (q.state === "error") st.textContent = `Quote failed: ${q.error}`;
+    else if (q.state === "finished") {
+      st.innerHTML = `Quoted ${esc(ctDateTime(q.quoted_at))}. Tier A (required now) <b>${money(q.totals.tier_A)}</b> · Tiers A+B (training, testing, holdout) <b>${money(q.totals.tier_A_B)}</b> · Everything incl. depth <b>${money(q.totals.all)}</b> (${num(q.totals.gigabytes_all, 1)} GB).`;
+      $("#quote tbody").innerHTML = q.lines.map((l) => `<tr><td>${esc(l.tier)}</td><td class="left">${esc(l.request)}${l.holdout ? " <span class='pill idle'>holdout</span>" : ""}</td><td class="left small">${esc(l.purpose)}</td><td>${num(l.gigabytes, 2)}</td><td>${money(l.usd)}</td></tr>`).join("");
+    } else st.textContent = "No quote yet.";
+  } catch (ex) { $("#quote-status").textContent = ex.message; }
+}
+$("#quote-run").addEventListener("click", async () => {
+  try { await api("/api/data/quote", { method: "POST" }); loadQuote(); } catch (ex) { toast(ex.message, true); }
+});
+
 async function loadUsers() {
   const list = await api("/api/users");
   $("#users tbody").innerHTML = list.map((u) => `<tr><td>${esc(u.username)}</td><td>${esc(u.role)}</td><td>${u.totp_enrolled ? "on" : "off"}</td><td>${u.last_login ? ctDateTime(u.last_login) : "never"}</td><td>${u.disabled ? "disabled" : u.locked ? "locked" : "active"}</td><td>${u.locked ? `<button data-unlock="${esc(u.username)}">Unlock</button>` : ""}</td></tr>`).join("");

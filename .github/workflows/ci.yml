@@ -121,6 +121,34 @@ jobs:
           path: dist/installer/*.exe
           retention-days: 30
 
+  windows-local-install:
+    name: Bill's one-block install (download, build, install, launch)
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - name: Run scripts/install-windows.ps1 on a clean runner (no uv preinstalled)
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install-windows.ps1 -NoLaunch
+      - name: Check icons, launch the installed app, health-check over HTTPS
+        shell: pwsh
+        run: |
+          $exe = Join-Path $env:LOCALAPPDATA "Programs\TradingSystem\TradingSystem.exe"
+          if (-not (Test-Path $exe)) { throw "app not installed" }
+          foreach ($f in @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('Programs'))) {
+            if (-not (Test-Path (Join-Path $f "Trading System.lnk"))) { throw "icon missing in $f" }
+          }
+          $env:TACP_HOME = Join-Path $env:RUNNER_TEMP "tacp-local"
+          $p = Start-Process $exe -ArgumentList '--server-only','--port','8798' -PassThru
+          $ok = $false
+          foreach ($i in 1..120) {
+            Start-Sleep -Seconds 2
+            $r = & curl.exe -s -k https://127.0.0.1:8798/api/health
+            if ($r -match '"status":"ok"') { $ok = $true; Write-Host $r; break }
+          }
+          $p | Stop-Process -Force
+          if (-not $ok) { throw "installed app did not answer over HTTPS" }
+
   ui-walkthrough:
     name: UI walkthrough (screenshots and video)
     runs-on: ubuntu-latest

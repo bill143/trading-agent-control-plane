@@ -68,6 +68,7 @@ class BacktestResult:
             "started": self.started,
             "seconds": round(self.seconds, 1),
             "data_label": self.data_label,
+            "result_label": result_label(self.data_label),
             "data_digest": self.data_digest,
             "dates": self.dates,
             "starting_equity": str(self.starting_equity),
@@ -151,6 +152,14 @@ def run(
     return result
 
 
+PIPELINE_LABEL = "Pipeline test only, not a result"
+
+
+def result_label(data_label: str) -> str:
+    """Every metric computed on synthetic sample data carries this label (DECISIONS.md D-13)."""
+    return PIPELINE_LABEL if "sample" in data_label.lower() else ""
+
+
 def list_runs(runs_dir: Path) -> list[dict[str, Any]]:
     """Summaries of previous runs, newest first (for the app's backtest viewer)."""
     out: list[dict[str, Any]] = []
@@ -166,6 +175,7 @@ def list_runs(runs_dir: Path) -> list[dict[str, Any]]:
                 "started": d["started"],
                 "dates": d["dates"],
                 "data_label": d["data_label"],
+                "result_label": result_label(d["data_label"]),
                 "trades": m["trades"],
                 "net_pnl": m["net_pnl"],
                 "profit_factor": m["profit_factor"],
@@ -184,6 +194,7 @@ def main(argv: list[str] | None = None) -> int:
     result = run(pack, args.out or paths.runs_dir())
     m = result.metrics
     print(
+        f"[{result_label(result.data_label) or 'real data'}] "
         f"{result.run_id}: {m.trades} trades, net ${m.net_pnl:.2f}, "
         f"PF {m.profit_factor if m.profit_factor is not None else '-'}, "
         f"max DD ${m.max_drawdown:.2f} -> {result.folder / 'report.html'}"

@@ -259,8 +259,8 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
 <!-- BUILDER STATUS: the AI builder edits ONLY the JSON inside this block. Keys: steps use Tab 6 IDs (e.g. "1.04"), checks use Tab 3 IDs (e.g. "C1.04"), gates use phase numbers. -->
 <script id="build-status" type="application/json">
 {
-  "updated": "2026-11-06 11:22 CT",
-  "current_step": "1.21",
+  "updated": "2026-11-06 11:37 CT",
+  "current_step": "2.01",
   "steps": {
     "0.01": {
       "status": "blocked",
@@ -336,8 +336,8 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
     },
     "1.06": {
       "status": "done",
-      "date": "2026-11-06 10:48 CT",
-      "proof": "engine/nautilus/node.py EngineNode: one BacktestEngine with simulated GLBX margin venue, per-contract fees, slippage model, one StarterStrategy per active contract + PortfolioGuard; tests/test_engine_node.py::test_one_strategy_per_contract_in_one_node, ::test_full_run_trades_every_symbol_with_real_fees passed; full 5-symbol x 5-session run: 669 round trips, 109 refusals",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "engine/nautilus/node.py EngineNode: one BacktestEngine with simulated GLBX margin venue, per-contract fees, slippage model, one StarterStrategy per active contract + PortfolioGuard; tests/test_engine_node.py::test_one_strategy_per_contract_in_one_node, ::test_full_run_trades_every_symbol_with_real_fees passed; full 5-symbol x 5-session synthetic run exercised every engine (PIPELINE TEST ONLY, NOT A RESULT)",
       "note": ""
     },
     "1.07": {
@@ -378,14 +378,14 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
     },
     "1.13": {
       "status": "done",
-      "date": "2026-11-06 10:48 CT",
-      "proof": "strategies/starter.py VWAP-stretch reversion with book-lean confirmation, one instance per contract, risk-checked brackets, cooldown, journal; runs end to end on every active symbol (all 5 traded in the full sample run: 1,338 fills, account 50,000 -> 50,179.87 after fees); labeled as having no claimed edge",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "strategies/starter.py VWAP-stretch reversion with book-lean confirmation, one instance per contract, risk-checked brackets, cooldown, 15:50 CT flat-by, journal; runs end to end on every active symbol on the synthetic sample pack (PIPELINE TEST ONLY, NOT A RESULT: all 5 contracts traded, 1,338 fills); no claimed edge",
       "note": ""
     },
     "1.14": {
       "status": "done",
-      "date": "2026-11-06 10:57 CT",
-      "proof": "engine/backtest.py runner (CLI: python -m engine.backtest) + engine/metrics.py + engine/report.py: result.json + self-contained report.html (profit factor, expectancy, max DD, Sharpe, win rate, avg win/loss, trade count, per-symbol table, refusals by rule, equity curve, sample-data banner); trade P&L reconciles to the simulated account to the cent; tests/test_backtest.py 7 passed; full sample run 669 trades, net $179.87, PF 1.07",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "engine/backtest.py runner (CLI: python -m engine.backtest) + engine/metrics.py + engine/report.py: result.json + self-contained report.html (profit factor, expectancy, max DD, Sharpe, win rate, avg win/loss, trade count, per-symbol table, refusals by rule, equity curve); trade P&L reconciles to the simulated account to the cent; tests/test_backtest.py 7 passed. Synthetic-data metrics are labeled 'Pipeline test only, not a result' in reports, result.json, the app and here (DECISIONS.md D-13)",
       "note": ""
     },
     "1.15": {
@@ -420,14 +420,32 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
     },
     "1.23": {
       "status": "blocked",
-      "date": "2026-11-06 11:22 CT",
+      "date": "2026-11-06 11:37 CT",
       "proof": "",
-      "note": "Needs Bill: Databento account + API key and Interactive Brokers paper account (C0.04/C0.05), entered in the app's Settings > Connections (encrypted vault, never in commits); and Bill's agreement to docs/COST_ESTIMATE.md (C0.07) before the Databento subscription starts. Paper-mode switch already refuses with this message until the keys exist."
+      "note": "Needs Bill: install the app (docs/INSTALL_WINDOWS.md) and enter the Databento API key and IBKR paper username/password in Settings > Connections (encrypted vault; never in chat or commits). Per D-11: Databento pay-as-you-go only until Phase 6, no IBKR market-data subscription. The paper-mode switch refuses until the keys exist."
     },
     "1.20": {
       "status": "done",
       "date": "2026-11-06 11:22 CT",
       "proof": "app/main.py (engine + HTTPS API + Edge WebView2 window pinned to the engine certificate, single instance, redacted logs) + app/web dashboard: symbol tiles, account/P&L/buying power/quotas, positions, trades, risk decisions, start/pause/stop/speed, kill switch + reset, backtest viewer, risk settings, connections vault, users, kill-switch drills, audit log, demo-mode banner; tests/test_app.py 6 passed; Playwright walkthrough (11 screens, zero browser errors) against the running app",
+      "note": ""
+    },
+    "1.21": {
+      "status": "done",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "packaging/TradingSystem.spec (PyInstaller) + packaging/installer.iss (Inno Setup, per-user, desktop icon, Start menu, uninstaller, WebView2 check) + packaging/icon.ico; no auto-updater (D-09); CI job 'Windows installer' built it, installed silently on a clean Windows runner, found the desktop icon, launched the installed exe, got HTTPS health OK, uninstalled cleanly: https://github.com/bill143/trading-agent-control-plane/actions/runs/42261152022",
+      "note": "Unsigned by Bill's decision until Phase 9 (DECISIONS.md D-10); CI signs automatically once a certificate is configured."
+    },
+    "1.22": {
+      "status": "done",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "tests/test_risk.py (42: risk manager, fee filter, settings lock, kill switch, audit), tests/test_engine_node.py (14: order handling, brackets, duplicate protection, manual + 3 automatic kill triggers, restart reconciliation), tests/test_api.py, tests/test_vault.py; risk/ coverage 97%, CI fails below 90%; 196 passed locally, green on Windows and Ubuntu: https://github.com/bill143/trading-agent-control-plane/actions/runs/42261152022",
+      "note": ""
+    },
+    "1.24": {
+      "status": "done",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "Builder click-through: tests/e2e/walkthrough.js drives the running app (setup, two-factor, sign-in, start, live tiles, decisions, manual kill + reset, automatic data-feed kill, backtest report, settings, audit log), zero browser errors; CI job 'UI walkthrough' records screenshots + .webm video (artifact ui-walkthrough): https://github.com/bill143/trading-agent-control-plane/actions/runs/42261152022; installed-app launch verified by the Windows installer job; BUILD_STATUS.md updated",
       "note": ""
     }
   },
@@ -446,6 +464,86 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "status": "built",
       "date": "2026-11-06 10:15 CT",
       "proof": "Bill accepted in chat 2026-11-06: profit factor above 1.3, max drawdown inside prop-firm limit (DECISIONS.md A-14)"
+    },
+    "C1.01": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "nautilus_trader 1.231.0 pinned; layout engine/ risk/ strategies/ api/ app/ tests/ docs/ (steps 1.01, 1.02)"
+    },
+    "C1.02": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "CI 'Windows installer' job: silent install, desktop icon present, installed TradingSystem.exe launched and answered HTTPS; Bill's one-block install (scripts/install-windows.ps1) creates desktop + Start menu icons: https://github.com/bill143/trading-agent-control-plane/actions/runs/42261152022"
+    },
+    "C1.03": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "Demo mode on the synthetic sample pack with no accounts: tests/e2e walkthrough (11 screens) + CI video artifact: https://github.com/bill143/trading-agent-control-plane/actions/runs/42261152022"
+    },
+    "C1.04": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "One engine node, one symbol engine per contract (5 active): tests/test_engine_node.py::test_one_strategy_per_contract_in_one_node"
+    },
+    "C1.05": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "Symbol tiles show price, spread, book lean, ATR, VWAP, prior-day and overnight levels, position, P&L, contracts used (engine/state.py; test_state_tracked_per_symbol_through_engine; walkthrough screenshot 05)"
+    },
+    "C1.06": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "risk/fees.py DailyFeeFilter per symbol per trade date; enforced per order (tests/test_risk.py fee tests)"
+    },
+    "C1.07": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "risk/manager.py: buying power with 40% buffer (30-50% enforced), margin, daily loss, per-trade loss, quotas (tests/test_risk.py)"
+    },
+    "C1.08": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "Correlation groups as one exposure, same-direction cap, max 3 open (test_cap_on_same_direction, test_one_exposure_per_correlation_group, test_max_three_open_positions)"
+    },
+    "C1.09": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "News blackout: no entries within 5 min before/after scheduled releases (test_news_blackout_only_for_affected_symbol; refusals visible in the decision log)"
+    },
+    "C1.10": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "Starter strategy trades every active contract end to end on the sample pack (PIPELINE TEST ONLY, NOT A RESULT)"
+    },
+    "C1.11": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "Backtest runner + report over the sample history (synthetic; PIPELINE TEST ONLY, NOT A RESULT); licensed history follows Bill's sign-off on the Databento quote (D-12)"
+    },
+    "C1.13": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "Automatic kill switch demonstrated for each trigger in demo: risk breach, data-feed failure, broker disconnect (tests/test_engine_node.py, each flattens), plus the data-feed drill in the UI walkthrough (screenshot 08)"
+    },
+    "C1.14": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "Same signal submitted twice -> one order, duplicate audited (test_same_signal_twice_sends_one_order; ledger survives restart)"
+    },
+    "C1.15": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "Guard reconciles broker positions with the position journal before any strategy acts; mismatch blocks trading (test_restart_mismatch_blocks_all_trading)"
+    },
+    "C1.16": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "AES-256-GCM vault, key protected by Windows DPAPI; API returns names only; gitleaks clean (tests/test_vault.py, test_secrets_names_only)"
+    },
+    "C1.17": {
+      "status": "built",
+      "date": "2026-11-06 11:37 CT",
+      "proof": "196 tests passing; risk/ coverage 97% (CI minimum 90%) on Windows and Ubuntu: https://github.com/bill143/trading-agent-control-plane/actions/runs/42261152022"
     }
   },
   "gates": {
@@ -453,6 +551,10 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "status": "passed",
       "date": "2026-11-06 10:15 CT",
       "approved_by": "Bill in chat 2026-11-06: 'Gate 0 passed, with conditions' (repo privacy pending GitHub support case; stack on PR #1, do not merge; no keys/account details in commits; sample data only until repo is private)"
+    },
+    "1": {
+      "status": "awaiting_bill",
+      "date": "2026-11-06 11:37 CT"
     }
   }
 }

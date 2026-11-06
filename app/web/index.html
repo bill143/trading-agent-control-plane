@@ -100,7 +100,7 @@
   <!-- Backtests -->
   <main id="view-backtests" class="view" hidden>
     <section class="card row">
-      <div><h2>Backtests</h2><p class="mut">Runs every sample session through the full engine at full speed with real per-contract fees and slippage, using the current risk settings.</p></div>
+      <div><h2>Backtests</h2><p class="mut">Runs every sample session through the full engine at full speed with real per-contract fees and slippage, using the current risk settings. On the synthetic sample data every number is a <b>pipeline test only, not a result</b>.</p></div>
       <div class="spacer"></div>
       <span id="bt-status" class="mut"></span>
       <button id="bt-run" class="primary">Run backtest</button>
@@ -136,6 +136,12 @@
         <div class="row end"><button class="primary" type="submit">Save to vault</button></div>
       </form>
       <ul id="secret-list" class="chips"></ul>
+      <div class="quote-box">
+        <div class="row"><h2>Historical data: exact price quote</h2><div class="spacer"></div><button id="quote-run">Get price quote</button></div>
+        <p class="mut">Asks Databento what the planned 3+ years of history would cost. Free: nothing is downloaded or charged. Paid downloads need your sign-off on the quoted total.</p>
+        <p id="quote-status" class="mut"></p>
+        <div class="scroll"><table id="quote"><thead><tr><th>Tier</th><th class="left">Data</th><th class="left">Purpose</th><th>Size (GB)</th><th>Price</th></tr></thead><tbody></tbody></table></div>
+      </div>
     </section>
     <section class="card owner-only">
       <h2>Users</h2>

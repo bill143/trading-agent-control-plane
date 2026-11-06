@@ -124,11 +124,15 @@ def render_html(r: dict[str, Any]) -> str:
         f"<td class='{_cls(t['pnl'])}'>{_fmt(t['pnl'], money=True)}</td></tr>"
         for t in r["trades"][-200:]
     )
+    label = r.get("result_label", "")
     banner = (
-        f'<div class="banner">{html.escape(r["data_label"])}</div>'
-        if "sample" in r["data_label"].lower()
+        f'<div class="banner"><b>{html.escape(label.upper())}.</b> '
+        f"{html.escape(r['data_label'])}. These numbers only show that the pipeline runs end "
+        "to end; they say nothing about how any strategy would perform.</div>"
+        if label
         else ""
     )
+    heading = f"Backtest: {html.escape(label.lower())}" if label else "Backtest results"
     ks = r["kill_switch"]
     kill = (
         "tripped: " + "; ".join(t["reason"] for t in ks["trips"])
@@ -138,11 +142,12 @@ def render_html(r: dict[str, Any]) -> str:
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Backtest {html.escape(r["run_id"])}</title><style>{_CSS}</style></head><body><main>
-<h1>Backtest results</h1>
+<h1>{heading}</h1>
 <div class="mut">Run {html.escape(r["run_id"])} &middot; sessions {html.escape(", ".join(r["dates"]))}
 &middot; {r["seconds"]} s &middot; data digest {html.escape(r["data_digest"][:12])}</div>
 {banner}
 {_metric_cards(m)}
+{"<p class='mut'><b>" + html.escape(label) + "</b> (synthetic sample data).</p>" if label else ""}
 <h2>Equity (closed trades, net of fees)</h2>
 <div class="card">{_curve_svg(m["equity_curve"], float(r["starting_equity"]))}</div>
 <h2>By symbol</h2><div class="scroll"><table><tr><th>Symbol</th><th>Trades</th><th>Win rate</th>

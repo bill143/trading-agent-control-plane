@@ -298,6 +298,16 @@ def create_app(  # noqa: PLR0915 - one route table, kept together for review
         return {"status": "injected"}
 
     # ----- backtests -------------------------------------------------------------------------
+    @app.get("/api/data/quote")
+    def get_data_quote(who: Who) -> dict[str, Any]:
+        need(who, Permission.MANAGE_SECRETS)
+        return service.data_quote()
+
+    @app.post("/api/data/quote")
+    def request_data_quote(who: Who) -> dict[str, Any]:
+        service.start_data_quote(who)
+        return service.data_quote()
+
     @app.get("/api/backtests")
     def list_backtests(who: Who) -> dict[str, Any]:
         need(who, Permission.READ)

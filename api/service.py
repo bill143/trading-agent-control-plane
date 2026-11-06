@@ -20,6 +20,7 @@ from typing import Any
 from api.audit import AuditCategory, AuditLog
 from api.vault import Vault
 from engine import backtest as backtest_runner
+from engine import data_plan
 from engine.context import EngineContext, Mode
 from engine.nautilus.catalog import PackInfo
 from engine.nautilus.node import EngineNode, RunState
@@ -69,6 +70,9 @@ class EngineService:
         self._kill_file = paths.state / "kill_switch.json"
         self._backtest_thread: threading.Thread | None = None
         self.backtest_status: dict[str, Any] = {"state": "idle"}
+        self.quote_status: dict[str, Any] = {"state": "idle"}
+        #: Builds the Databento cost client from an API key (replaced in tests).
+        self.cost_client_factory: Callable[[str], data_plan.CostClient] = data_plan.databento_client
         self.mode = Mode.DEMO
 
     # ----- data pack --------------------------------------------------------------------------
@@ -331,6 +335,41 @@ class EngineService:
         self._backtest_thread = threading.Thread(target=work, name="backtest", daemon=True)
         self._backtest_thread.start()
         self.audit.record(AuditCategory.COMMAND, "backtest_started", principal.id, {})
+
+    # ----- historical data price quote (free; never downloads) ------------------------------------
+    def start_data_quote(self, principal: Principal) -> None:
+        principal.require(Permission.MANAGE_SECRETS)
+        if not self.vault.has("databento.api_key"):
+            raise ServiceError("save your Databento API key in Settings > Connections first")
+        if self.quote_status.get("state") == "running":
+            raise ServiceError("a quote is already running")
+        key = self.vault.get("databento.api_key").reveal()
+        self.quote_status = {"state": "running"}
+
+        def work() -> None:
+            try:
+                q = data_plan.quote(self.cost_client_factory(key))
+                data_plan.save_quote(q, self.paths.state)
+                self.quote_status = {"state": "finished", **q.to_dict()}
+                self.audit.record(
+                    AuditCategory.COMMAND,
+                    "data_plan_quoted",
+                    principal.id,
+                    {"total_all": str(q.total()), "tier_a_b": str(q.total("AB"))},
+                )
+            except Exception as exc:
+                log.warning("data quote failed: %s", type(exc).__name__)
+                self.quote_status = {"state": "error", "error": f"{type(exc).__name__}: {exc}"}
+
+        threading.Thread(target=work, name="data-quote", daemon=True).start()
+        self.audit.record(AuditCategory.COMMAND, "data_plan_quote_requested", principal.id, {})
+
+    def data_quote(self) -> dict[str, Any]:
+        if self.quote_status.get("state") == "idle":
+            saved = self.paths.state / "data_plan_quote.json"
+            if saved.is_file():
+                return {"state": "finished", **json.loads(saved.read_text("utf-8"))}
+        return self.quote_status
 
     def backtests(self) -> list[dict[str, Any]]:
         return backtest_runner.list_runs(self.paths.runs)

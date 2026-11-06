@@ -111,7 +111,8 @@ def test_report_files_written(result: BacktestResult) -> None:
     ):
         assert key in data["metrics"]
     page = (result.folder / "report.html").read_text("utf-8")
-    assert "Backtest results" in page
+    assert "PIPELINE TEST ONLY, NOT A RESULT" in page
+    assert data["result_label"] == "Pipeline test only, not a result"
     assert "SAMPLE DATA" in page
     assert "<svg" in page
     assert "http" not in page.split("<body>")[1]  # self-contained
@@ -121,6 +122,7 @@ def test_list_runs(result: BacktestResult) -> None:
     runs = list_runs(result.folder.parent)
     assert runs[0]["run_id"] == result.run_id
     assert runs[0]["trades"] == result.metrics.trades
+    assert runs[0]["result_label"] == "Pipeline test only, not a result"
 
 
 def test_cli(
