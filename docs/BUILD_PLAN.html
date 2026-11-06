@@ -259,8 +259,8 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
 <!-- BUILDER STATUS: the AI builder edits ONLY the JSON inside this block. Keys: steps use Tab 6 IDs (e.g. "1.04"), checks use Tab 3 IDs (e.g. "C1.04"), gates use phase numbers. -->
 <script id="build-status" type="application/json">
 {
-  "updated": "2026-11-05 20:28 CT",
-  "current_step": "0.07",
+  "updated": "2026-11-05 20:36 CT",
+  "current_step": "1.01",
   "steps": {
     "0.01": {
       "status": "blocked",
@@ -287,9 +287,9 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "note": ""
     },
     "0.05": {
-      "status": "in_progress",
-      "date": "2026-11-05 20:28 CT",
-      "proof": "",
+      "status": "done",
+      "date": "2026-11-05 20:36 CT",
+      "proof": "Python 3.13.14 (.python-version), Rust 1.97.1 (rust-toolchain.toml), uv.lock; scripts/setup-windows.ps1 passed on a clean Windows runner (installed uv, Python, Rust 1.97.1, hooks; toolchain OK; 32 tests passed): CI job 'Windows dev environment setup script', https://github.com/bill143/trading-agent-control-plane/actions/runs/42150639421",
       "note": ""
     },
     "0.06": {
@@ -299,14 +299,25 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "note": ""
     },
     "0.07": {
-      "status": "in_progress",
-      "date": "2026-11-05 20:28 CT",
-      "proof": "",
+      "status": "done",
+      "date": "2026-11-05 20:36 CT",
+      "proof": ".github/workflows/ci.yml on every push and PR: ruff, format, mypy strict, pytest on windows-latest + ubuntu-latest, Windows setup script, pip-audit (hashed lock: no known vulnerabilities), full-history gitleaks (no leaks). All 5 jobs green: https://github.com/bill143/trading-agent-control-plane/actions/runs/42150639421",
       "note": ""
     }
   },
-  "checks": {},
-  "gates": {}
+  "checks": {
+    "C0.09": {
+      "status": "built",
+      "date": "2026-11-05 20:36 CT",
+      "proof": "DECISIONS.md section B (development 2022-11-01..2025-10-31; holdout 2025-11-03..2026-10-30) committed in 0eeada3 on 2026-11-05, before any market data was downloaded (none downloaded yet)"
+    }
+  },
+  "gates": {
+    "0": {
+      "status": "awaiting_bill",
+      "date": "2026-11-05 20:36 CT"
+    }
+  }
 }
 </script>
 <script>
