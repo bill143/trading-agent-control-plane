@@ -1,0 +1,51 @@
+# Install once per clone:  uv run pre-commit install
+# Every commit is scanned for secrets (gitleaks) and checked with the locked toolchain.
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: end-of-file-fixer
+        exclude: ^docs/BUILD_(PLAN\.html|SEQUENCE\.md)$
+      - id: trailing-whitespace
+        exclude: ^docs/BUILD_(PLAN\.html|SEQUENCE\.md)$
+  - repo: local
+    hooks:
+      - id: forbid-env-files
+        name: forbid committing .env files
+        entry: ".env files must never be committed (see docs/SECURITY.md)"
+        language: fail
+        files: (^|/)\.env(\..+)?$
+        exclude: (^|/)\.env\.example$
+      - id: ruff-check
+        name: ruff check
+        entry: uv run --frozen ruff check --force-exclude
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run --frozen ruff format --check --force-exclude
+        language: system
+        types: [python]
+      - id: mypy
+        name: mypy
+        entry: uv run --frozen mypy
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: build-status
+        name: build-status JSON valid and BUILD_STATUS.md in sync
+        entry: uv run --frozen python -m tools.build_status validate
+        language: system
+        files: ^(docs/BUILD_PLAN\.html|docs/BUILD_SEQUENCE\.md|BUILD_STATUS\.md)$
+        pass_filenames: false
