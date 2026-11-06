@@ -37,6 +37,10 @@ extend-exclude = ["docs"]
 select = ["E", "W", "F", "I", "B", "UP", "S", "SIM", "RUF", "N", "PL", "PT", "TRY"]
 ignore = ["PLR2004", "TRY003"]
 
+[tool.ruff.lint.pylint]
+max-args = 8
+max-positional-args = 6
+
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S603", "S607", "PLR2004"]
 
@@ -61,3 +65,8 @@ disallow_any_unimported = false
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-ra --strict-markers"
+filterwarnings = [
+    # pandas 3 deprecation warnings raised inside NautilusTrader's compiled code (not ours).
+    "ignore::DeprecationWarning:nautilus_trader",
+    "ignore:.*is deprecated and will be removed in a future version.*",
+]

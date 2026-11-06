@@ -30,7 +30,7 @@ from engine.calendar import CT, Session
 from engine.events import EconomicEvent, Impact
 from engine.instruments import ACTIVE_ROOTS, SPECS, Contract, front_contract
 
-PACK_VERSION: Final = 1
+PACK_VERSION: Final = 2
 DEFAULT_SEED: Final = 20_261_102
 #: Five consecutive CME trade dates (Mon 2026-11-02 .. Fri 2026-11-06) after the DST switch.
 DEFAULT_DATES: Final = (
@@ -57,6 +57,8 @@ _TEN_Y_DAILY_BP: Final = 6.0
 _RTH_QUOTE_RATE: Final = 1.2
 _ETH_QUOTE_RATE: Final = 0.15
 _TRADE_TO_QUOTE: Final = 0.35
+#: Longest gap between quotes in the sample feed, seconds.
+HEARTBEAT_S: Final = 5.0
 
 I64 = npt.NDArray[np.int64]
 F64 = npt.NDArray[np.float64]
@@ -160,7 +162,8 @@ def _generate_day(
     lam = _intensity(grid, session) * _RTH_QUOTE_RATE
     n_events = rng.poisson(lam)
     q_secs = np.repeat(grid, n_events) + rng.random(int(n_events.sum()))
-    q_secs.sort()
+    # Heartbeat: a quote at least every HEARTBEAT_S seconds, as a live feed would send.
+    q_secs = np.union1d(q_secs, np.arange(0.0, duration, HEARTBEAT_S) + 0.5)
     if q_secs.size == 0:
         raise RuntimeError(f"no quote events generated for {root} {session.trade_date}")
 

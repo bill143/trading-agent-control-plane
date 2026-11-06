@@ -358,7 +358,13 @@ class PortfolioRiskManager:
     def _correlation_check(i: OrderIntent, v: PortfolioView, s: RiskSettings) -> CheckResult:
         group = SPECS[i.root].correlation_group
         exposures = v.exposures()
-        in_group = [(r, side) for r, side in exposures if SPECS[r].correlation_group == group]
+        # The same symbol is handled by the position-count check; here: *other* symbols that
+        # move with this one (e.g. MES with MNQ/MYM) count as the same exposure.
+        in_group = [
+            (r, side)
+            for r, side in exposures
+            if r != i.root and SPECS[r].correlation_group == group
+        ]
         if in_group:
             return CheckResult(
                 "correlation",

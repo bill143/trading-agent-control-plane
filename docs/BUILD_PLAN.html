@@ -259,8 +259,8 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
 <!-- BUILDER STATUS: the AI builder edits ONLY the JSON inside this block. Keys: steps use Tab 6 IDs (e.g. "1.04"), checks use Tab 3 IDs (e.g. "C1.04"), gates use phase numbers. -->
 <script id="build-status" type="application/json">
 {
-  "updated": "2026-11-06 10:26 CT",
-  "current_step": "1.06",
+  "updated": "2026-11-06 10:48 CT",
+  "current_step": "1.14",
   "steps": {
     "0.01": {
       "status": "blocked",
@@ -332,6 +332,54 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "status": "done",
       "date": "2026-11-06 10:26 CT",
       "proof": "engine/sample_data.py (seeded generator, 5 active contracts x 5 CME sessions, 860,879 quotes + 301,715 trades, SHA-256 digest) + engine/nautilus/catalog.py (ParquetDataCatalog pack, manifest, events, ensure_pack regenerates missing/tampered packs; 27 MB, ~8 s); tests/test_sample_data.py 10 passed; full suite 89 passed",
+      "note": ""
+    },
+    "1.06": {
+      "status": "done",
+      "date": "2026-11-06 10:48 CT",
+      "proof": "engine/nautilus/node.py EngineNode: one BacktestEngine with simulated GLBX margin venue, per-contract fees, slippage model, one StarterStrategy per active contract + PortfolioGuard; tests/test_engine_node.py::test_one_strategy_per_contract_in_one_node, ::test_full_run_trades_every_symbol_with_real_fees passed; full 5-symbol x 5-session run: 669 round trips, 109 refusals",
+      "note": ""
+    },
+    "1.07": {
+      "status": "done",
+      "date": "2026-11-06 10:48 CT",
+      "proof": "engine/state.py SymbolTracker/StateStore (price, spread, book lean, ATR14 on 1m bars, session VWAP + band, prior-day H/L/C, overnight H/L, position, P&L, contracts used, data age), fed by each symbol engine; tests/test_state.py 7 passed + test_state_tracked_per_symbol_through_engine passed",
+      "note": ""
+    },
+    "1.08": {
+      "status": "done",
+      "date": "2026-11-06 10:48 CT",
+      "proof": "risk/fees.py: per-contract fee table (estimates, marked), DailyFeeFilter cached per trade date and recalculated on fee change; enforced per intent by the risk manager; tests/test_risk.py fee tests passed (MES 8 ticks qualifies, MNQ/MYM 1-2 tick scalps fail, 1-tick MES target refused)",
+      "note": ""
+    },
+    "1.09": {
+      "status": "done",
+      "date": "2026-11-06 10:48 CT",
+      "proof": "risk/manager.py PortfolioRiskManager: 12 checks on every entry (kill switch, symbol, bracket shape, session, news blackout, fee filter, per-trade loss, daily loss, buying power with 30-50% buffer + margin, per-symbol/total quotas, max 3 open, correlation groups + same-direction cap); tests/test_risk.py 22 manager tests passed",
+      "note": ""
+    },
+    "1.10": {
+      "status": "done",
+      "date": "2026-11-06 10:48 CT",
+      "proof": "risk/settings.py RiskSettingsStore: frozen settings, HMAC-signed file (tamper detected, trading refused), only human Owner may change, AI principals always refused (even with Owner role), every accepted/refused change audited; risk/authority.py; tests/test_risk.py settings tests passed (5 refused principals parametrized)",
+      "note": ""
+    },
+    "1.11": {
+      "status": "done",
+      "date": "2026-11-06 10:48 CT",
+      "proof": "risk/killswitch.py + engine/nautilus/guard.py: manual trip and automatic trips on risk breach, data-feed silence (per-product session aware) and broker disconnect; flattens every symbol engine on the engine thread; only human Owner resets; tests passed: test_manual_kill_switch_flattens_everything, test_automatic_kill_on_risk_breach / data_feed_failure / broker_disconnect, test_quiet_overnight_feed_does_not_false_trip",
+      "note": ""
+    },
+    "1.12": {
+      "status": "done",
+      "date": "2026-11-06 10:48 CT",
+      "proof": "Bracket (market entry + STOP_MARKET + LIMIT) via order_factory.bracket, test_bracket_orders_sent_together; persistent SignalLedger, test_same_signal_twice_sends_one_order + test_signal_ledger_survives_restart; PositionJournal + reconcile() run by the guard before any strategy may act, test_restart_mismatch_blocks_all_trading + test_reconcile_rules",
+      "note": "Broker-side reconciliation on a real paper account is exercised again in step 1.23."
+    },
+    "1.13": {
+      "status": "done",
+      "date": "2026-11-06 10:48 CT",
+      "proof": "strategies/starter.py VWAP-stretch reversion with book-lean confirmation, one instance per contract, risk-checked brackets, cooldown, journal; runs end to end on every active symbol (all 5 traded in the full sample run: 1,338 fills, account 50,000 -> 50,179.87 after fees); labeled as having no claimed edge",
       "note": ""
     }
   },

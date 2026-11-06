@@ -58,6 +58,7 @@ def test_quotes_are_valid_market_data(pack: sample_data.SamplePack) -> None:
         assert set(np.unique(spread_ticks)) <= {1.0, 2.0}
         assert np.allclose(np.round(q.bid / tick) * tick, q.bid, atol=tick * 1e-6)
         assert np.all(np.diff(q.ts_ns) > 0), "quote timestamps strictly increasing"
+        assert np.max(np.diff(q.ts_ns)) <= sample_data.HEARTBEAT_S * 1e9 + 1e6, "feed gap"
         assert np.all(q.bid_size > 0)
         assert np.all(q.ask_size > 0)
         assert np.all(t.size > 0)
@@ -87,7 +88,7 @@ def test_regular_hours_busier_than_overnight(pack: sample_data.SamplePack) -> No
     ts = d.quotes.ts_ns
     rth_rate = np.sum((ts >= rth_start) & (ts < rth_end)) / 6.5
     eth_rate = np.sum(ts < rth_start) / ((rth_start - ts[0]) / 3.6e12)
-    assert rth_rate > 4 * eth_rate
+    assert rth_rate > 3 * eth_rate  # overnight includes the 5 s heartbeat quotes
 
 
 def test_catalog_round_trip(pack: sample_data.SamplePack, written: Path) -> None:
