@@ -41,6 +41,7 @@ from api.audit import AuditCategory
 from engine.calendar import CT, from_unix_ns
 from engine.context import EngineContext, PositionRecord
 from engine.instruments import SPECS
+from engine.metrics import TradeRecord
 from engine.nautilus.portfolio import portfolio_view
 from engine.state import SymbolTracker
 from risk.manager import OrderIntent, Side
@@ -57,6 +58,8 @@ class StarterConfig(StrategyConfig, frozen=True):
     cooldown_minutes: int = 10
     entry_start_ct: str = "08:35"
     entry_end_ct: str = "14:45"
+    #: Close any open position and cancel its orders at this time (no overnight holds).
+    flat_by_ct: str = "15:50"
 
 
 def _hhmm(s: str) -> time:
@@ -77,9 +80,11 @@ class StarterStrategy(Strategy):
         )
         self._entry_start = _hhmm(config.entry_start_ct)
         self._entry_end = _hhmm(config.entry_end_ct)
+        self._flat_by = _hhmm(config.flat_by_ct)
         self._evaluated: set[str] = set()
         self._entry_orders: dict[str, str] = {}  # client order id -> signal id
         self._cooldown_until: datetime | None = None
+        self._commissions: dict[str, Decimal] = {}  # position id -> commission so far
         self.signals_seen = 0
         self.orders_sent = 0
 
@@ -110,6 +115,13 @@ class StarterStrategy(Strategy):
             self.tracker.on_trade(tick.ts_event, tick.price.as_double(), tick.size.as_double())
 
     # ----- signal ---------------------------------------------------------------------------------
+    def _past_flat_by(self, now: datetime) -> bool:
+        session = self.tracker.session
+        if session is None:
+            return False
+        flat_by = datetime.combine(session.trade_date, self._flat_by, tzinfo=CT)
+        return flat_by <= now < session.close
+
     def _ready(self, now: datetime) -> bool:
         """Trading allowed for this symbol right now (before looking at the market)."""
         if not self.ctx.reconciled.is_set() or self.ctx.kill.tripped:
@@ -136,6 +148,10 @@ class StarterStrategy(Strategy):
 
     def _maybe_signal(self, ts_ns: int) -> None:
         now = from_unix_ns(ts_ns)
+        if self._past_flat_by(now):
+            if self.tracker.position != 0 or self._pending_for_root():
+                self.flatten()
+            return
         if not self._ready(now):
             return
         fired = self._side()
@@ -242,6 +258,11 @@ class StarterStrategy(Strategy):
 
     def on_order_filled(self, event: OrderFilled) -> None:
         coid = event.client_order_id.value
+        if event.position_id is not None and event.commission is not None:
+            pid = event.position_id.value
+            self._commissions[pid] = self._commissions.get(pid, Decimal(0)) + Decimal(
+                str(event.commission.as_decimal())
+            )
         if coid in self._entry_orders:
             with self.ctx.store.lock:
                 self.tracker.add_contracts(int(event.last_qty.as_double()))
@@ -277,8 +298,25 @@ class StarterStrategy(Strategy):
         self._save_journal()
 
     def on_position_closed(self, event: PositionClosed) -> None:
+        pnl = Decimal(str(event.realized_pnl.as_decimal()))
+        closed = from_unix_ns(event.ts_closed)
+        session = self.tracker.session
+        record = TradeRecord(
+            root=self.root,
+            symbol=self.iid.symbol.value,
+            side="long" if event.entry.name == "BUY" else "short",
+            qty=int(event.peak_qty.as_double()),
+            opened=from_unix_ns(event.ts_opened),
+            closed=closed,
+            entry=float(event.avg_px_open),
+            exit=float(event.avg_px_close),
+            pnl=pnl,
+            commission=self._commissions.pop(event.position_id.value, Decimal(0)),
+            trade_date=session.trade_date if session else closed.date(),
+        )
         with self.ctx.store.lock:
-            self.tracker.add_realized(float(event.realized_pnl.as_double()))
+            self.ctx.trades.append(record)
+            self.tracker.add_realized(float(pnl))
             self._refresh_position()
         self._cooldown_until = from_unix_ns(event.ts_event) + timedelta(
             minutes=self.config.cooldown_minutes

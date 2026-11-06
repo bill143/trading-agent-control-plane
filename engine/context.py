@@ -21,6 +21,7 @@ from typing import Any, Final
 
 from api.audit import AuditCategory, AuditSink
 from engine.events import EventCalendar
+from engine.metrics import TradeRecord
 from engine.state import StateStore
 from risk.fees import DailyFeeFilter
 from risk.killswitch import KillSwitch
@@ -216,6 +217,8 @@ class EngineContext:
         self.orders_submitted = 0
         #: Entry orders sent but not yet filled, by signal ID (guarded by ``store.lock``).
         self.pending: dict[str, OrderIntent] = {}
+        #: Every completed round trip, in close order (guarded by ``store.lock``).
+        self.trades: list[TradeRecord] = []
 
     @property
     def settings(self) -> RiskSettings:

@@ -259,8 +259,8 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
 <!-- BUILDER STATUS: the AI builder edits ONLY the JSON inside this block. Keys: steps use Tab 6 IDs (e.g. "1.04"), checks use Tab 3 IDs (e.g. "C1.04"), gates use phase numbers. -->
 <script id="build-status" type="application/json">
 {
-  "updated": "2026-11-06 10:48 CT",
-  "current_step": "1.14",
+  "updated": "2026-11-06 10:57 CT",
+  "current_step": "1.15",
   "steps": {
     "0.01": {
       "status": "blocked",
@@ -380,6 +380,12 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "status": "done",
       "date": "2026-11-06 10:48 CT",
       "proof": "strategies/starter.py VWAP-stretch reversion with book-lean confirmation, one instance per contract, risk-checked brackets, cooldown, journal; runs end to end on every active symbol (all 5 traded in the full sample run: 1,338 fills, account 50,000 -> 50,179.87 after fees); labeled as having no claimed edge",
+      "note": ""
+    },
+    "1.14": {
+      "status": "done",
+      "date": "2026-11-06 10:57 CT",
+      "proof": "engine/backtest.py runner (CLI: python -m engine.backtest) + engine/metrics.py + engine/report.py: result.json + self-contained report.html (profit factor, expectancy, max DD, Sharpe, win rate, avg win/loss, trade count, per-symbol table, refusals by rule, equity curve, sample-data banner); trade P&L reconciles to the simulated account to the cent; tests/test_backtest.py 7 passed; full sample run 669 trades, net $179.87, PF 1.07",
       "note": ""
     }
   },
