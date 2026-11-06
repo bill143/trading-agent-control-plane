@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trading System</title>
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+</head>
+<body>
+<!-- ===== Sign-in and first-run setup ===== -->
+<section id="auth" class="auth" hidden>
+  <div class="auth-card">
+    <div class="brand"><img src="/static/icon.svg" alt="" width="36" height="36"><span>Trading System</span></div>
+    <form id="login-form" autocomplete="on">
+      <h1>Sign in</h1>
+      <label>Username<input name="username" autocomplete="username" required maxlength="32"></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+      <label>6-digit code from your authenticator app<input name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></label>
+      <button class="primary" type="submit">Sign in</button>
+      <p class="form-error" role="alert"></p>
+    </form>
+    <form id="setup-form" hidden>
+      <h1>Create the Owner account</h1>
+      <p class="mut">First start on this computer. The Owner has full control, including risk settings and users.</p>
+      <label>Username<input name="username" required maxlength="32" pattern="[A-Za-z0-9_]+"></label>
+      <label>Password (12+ characters)<input name="password" type="password" minlength="12" autocomplete="new-password" required></label>
+      <label>Repeat password<input name="password2" type="password" minlength="12" autocomplete="new-password" required></label>
+      <button class="primary" type="submit">Create account</button>
+      <p class="form-error" role="alert"></p>
+    </form>
+    <div id="enroll" hidden>
+      <h1>Set up two-factor sign-in</h1>
+      <p>Scan this code with an authenticator app (Microsoft Authenticator, Google Authenticator, 1Password, Authy). You will need its 6-digit code every time you sign in.</p>
+      <div id="enroll-qr" class="qr"></div>
+      <details><summary>Can't scan? Enter the key manually</summary><code id="enroll-uri" class="wrap"></code></details>
+      <button class="primary" id="enroll-done" type="button">I've added it — continue to sign in</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Application ===== -->
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="brand"><img src="/static/icon.svg" alt="" width="26" height="26"><span>Trading System</span></div>
+    <span id="mode-badge" class="badge">DEMO</span>
+    <span id="engine-badge" class="badge">idle</span>
+    <span id="clock" class="mut mono"></span>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-view="dashboard" class="on">Dashboard</button>
+      <button role="tab" data-view="backtests">Backtests</button>
+      <button role="tab" data-view="settings">Settings</button>
+      <button role="tab" data-view="activity">Activity</button>
+    </nav>
+    <div class="spacer"></div>
+    <span id="user-chip" class="mut"></span>
+    <button id="logout" class="ghost">Sign out</button>
+  </header>
+
+  <div id="sample-banner" class="banner warn" hidden>DEMO MODE · SAMPLE DATA — synthetic, generated prices. No account is connected and no real orders are sent.</div>
+  <div id="kill-banner" class="banner danger" hidden></div>
+
+  <!-- Dashboard -->
+  <main id="view-dashboard" class="view">
+    <section class="controls card">
+      <div class="ctl-group">
+        <button id="btn-start" class="primary">Start</button>
+        <button id="btn-pause">Pause</button>
+        <button id="btn-stop">Stop</button>
+      </div>
+      <label class="speed">Replay speed
+        <select id="speed">
+          <option value="1">1× (real time)</option><option value="10">10×</option>
+          <option value="60" selected>60×</option><option value="300">300×</option>
+          <option value="1200">1200×</option><option value="3600">3600×</option>
+        </select>
+      </label>
+      <div class="progress mut" id="progress"></div>
+      <div class="spacer"></div>
+      <button id="btn-kill" class="kill" title="Cancel all orders and close all positions now">KILL SWITCH</button>
+    </section>
+
+    <section class="account-grid" id="account"></section>
+    <section class="tiles" id="tiles"></section>
+
+    <section class="two-col">
+      <div class="card">
+        <h2>Open positions</h2>
+        <div class="scroll"><table id="positions"><thead><tr><th>Contract</th><th>Side</th><th>Qty</th><th>Avg price</th><th>Last</th><th>Unrealized</th></tr></thead><tbody></tbody></table></div>
+        <h2>Trades today</h2>
+        <div class="scroll"><table id="trades"><thead><tr><th>Closed</th><th>Contract</th><th>Side</th><th>Entry</th><th>Exit</th><th>Net P&amp;L</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card">
+        <h2>Risk manager decisions <span class="mut small" id="decision-count"></span></h2>
+        <ul class="decisions" id="decisions"></ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Backtests -->
+  <main id="view-backtests" class="view" hidden>
+    <section class="card row">
+      <div><h2>Backtests</h2><p class="mut">Runs every sample session through the full engine at full speed with real per-contract fees and slippage, using the current risk settings.</p></div>
+      <div class="spacer"></div>
+      <span id="bt-status" class="mut"></span>
+      <button id="bt-run" class="primary">Run backtest</button>
+    </section>
+    <section class="card">
+      <div class="scroll"><table id="bt-list"><thead><tr><th>Run</th><th>Sessions</th><th>Trades</th><th>Net P&amp;L</th><th>Profit factor</th><th>Max drawdown</th><th></th></tr></thead><tbody></tbody></table></div>
+    </section>
+    <section class="card report-frame" id="bt-report-card" hidden>
+      <div class="row"><h2 id="bt-report-title">Report</h2><div class="spacer"></div><button id="bt-close" class="ghost">Close report</button></div>
+      <iframe id="bt-report" title="Backtest report" sandbox=""></iframe>
+    </section>
+  </main>
+
+  <!-- Settings -->
+  <main id="view-settings" class="view" hidden>
+    <section class="card">
+      <div class="row"><h2>Risk settings</h2><div class="spacer"></div><span id="settings-lock" class="badge"></span></div>
+      <p class="mut">Hard limits between every trade decision and the broker. Only the Owner can change them; every change is recorded in the audit log. No AI can change them.</p>
+      <form id="risk-form" class="settings-grid"></form>
+      <div class="row"><p class="form-error" id="risk-error" role="alert"></p><div class="spacer"></div><button id="risk-save" class="primary" type="button">Save changes</button></div>
+    </section>
+    <section class="card owner-only">
+      <h2>Connections</h2>
+      <p class="mut">Keys are stored in the encrypted vault on this computer and are never shown again after saving. Paper trading on Databento and Interactive Brokers connects in build step 1.23.</p>
+      <form id="secret-form" class="settings-grid">
+        <label>Connection
+          <select name="name">
+            <option value="databento.api_key">Databento API key</option>
+            <option value="ibkr.username">Interactive Brokers paper username</option>
+            <option value="ibkr.password">Interactive Brokers paper password</option>
+          </select></label>
+        <label>Value<input name="value" type="password" autocomplete="off" required></label>
+        <div class="row end"><button class="primary" type="submit">Save to vault</button></div>
+      </form>
+      <ul id="secret-list" class="chips"></ul>
+    </section>
+    <section class="card owner-only">
+      <h2>Users</h2>
+      <div class="scroll"><table id="users"><thead><tr><th>User</th><th>Role</th><th>Two-factor</th><th>Last sign-in</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+      <form id="user-form" class="settings-grid">
+        <label>New username<input name="username" required maxlength="32" pattern="[A-Za-z0-9_]+"></label>
+        <label>Temporary password (12+)<input name="password" type="password" minlength="12" required autocomplete="new-password"></label>
+        <label>Role<select name="role"><option value="viewer">Viewer — read only</option><option value="approver">Approver — approve trades, kill switch</option><option value="owner">Owner — full control</option></select></label>
+        <div class="row end"><button class="primary" type="submit">Add user</button></div>
+      </form>
+      <div id="user-enroll" hidden class="enroll-inline"></div>
+    </section>
+    <section class="card owner-only">
+      <h2>Kill-switch drills (demo only)</h2>
+      <p class="mut">Simulate a failure to watch the automatic kill switch fire and flatten everything. Works only in demo mode with the engine running.</p>
+      <div class="row wrap">
+        <select id="fault-root"></select>
+        <button id="fault-data">Stop this symbol's market data</button>
+        <button id="fault-broker">Disconnect the broker</button>
+        <button id="fault-clear" class="ghost">Clear simulated faults</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Activity -->
+  <main id="view-activity" class="view" hidden>
+    <section class="card">
+      <div class="row"><h2>Audit log</h2><div class="spacer"></div><span id="audit-verify" class="badge"></span></div>
+      <p class="mut">Every sign-in, command, setting change and order, in a tamper-evident chain.</p>
+      <div class="scroll"><table id="audit"><thead><tr><th>#</th><th>Time (UTC)</th><th>Category</th><th>Action</th><th>By</th><th>Details</th></tr></thead><tbody></tbody></table></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="confirm">
+  <form method="dialog">
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-text"></p>
+    <label id="confirm-input-label" hidden><span id="confirm-input-caption"></span><input id="confirm-input" maxlength="200"></label>
+    <div class="row end"><button value="cancel" class="ghost">Cancel</button><button value="ok" id="confirm-ok" class="primary">Confirm</button></div>
+  </form>
+</dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="/static/app.js"></script>
+</body>
+</html>

@@ -4,13 +4,19 @@
   "enforcement": "active",
   "conditions": {
     "ref_name": {
-      "include": ["~DEFAULT_BRANCH"],
+      "include": [
+        "~DEFAULT_BRANCH"
+      ],
       "exclude": []
     }
   },
   "rules": [
-    { "type": "deletion" },
-    { "type": "non_fast_forward" },
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
     {
       "type": "pull_request",
       "parameters": {
@@ -26,11 +32,27 @@
       "parameters": {
         "strict_required_status_checks_policy": true,
         "required_status_checks": [
-          { "context": "lint, types, tests (windows-latest)" },
-          { "context": "lint, types, tests (ubuntu-latest)" },
-          { "context": "Windows dev environment setup script" },
-          { "context": "dependency vulnerability scan" },
-          { "context": "secret scan (full history)" }
+          {
+            "context": "lint, types, tests (windows-latest)"
+          },
+          {
+            "context": "lint, types, tests (ubuntu-latest)"
+          },
+          {
+            "context": "Windows dev environment setup script"
+          },
+          {
+            "context": "dependency vulnerability scan"
+          },
+          {
+            "context": "secret scan (full history)"
+          },
+          {
+            "context": "Windows installer (build, install, launch, uninstall)"
+          },
+          {
+            "context": "UI walkthrough (screenshots and video)"
+          }
         ]
       }
     }

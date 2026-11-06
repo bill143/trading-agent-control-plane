@@ -82,6 +82,7 @@ class PortfolioGuard(Actor):
             pending_entries=len(view.pending),
             contracts_used=view.contracts_used_total,
             daily_loss_limit=ctx.settings.daily_loss_limit,
+            daily_contract_quota_total=ctx.settings.daily_contract_quota_total,
             kill_switch=ctx.kill.tripped,
             reconciled=ctx.reconciled.is_set(),
             mode=ctx.mode.value,

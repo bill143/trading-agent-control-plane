@@ -39,3 +39,5 @@ Thumbs.db
 desktop.ini
 .idea/
 .vscode/
+tests/e2e/node_modules/
+tests/e2e/out/

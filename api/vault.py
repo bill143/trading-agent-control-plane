@@ -160,10 +160,40 @@ class DpapiKeyProvider:
         return key
 
 
+class OwnerOnlyFileKeyProvider:
+    """Development fallback for machines without DPAPI or an OS keyring (e.g. headless Linux):
+    the key sits in a file only the current user can read. Never used on Windows."""
+
+    def __init__(self, key_file: Path) -> None:
+        self.key_file = key_file
+
+    def load_or_create(self) -> bytes:
+        if self.key_file.exists():
+            return base64.b64decode(self.key_file.read_bytes())
+        key = secrets.token_bytes(KEY_BYTES)
+        self.key_file.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(self.key_file, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(base64.b64encode(key))
+        return key
+
+
+def _keyring_usable() -> bool:
+    try:
+        import keyring  # noqa: PLC0415
+        from keyring.backends import fail  # noqa: PLC0415
+
+        return not isinstance(keyring.get_keyring(), fail.Keyring)
+    except Exception:
+        return False
+
+
 def default_key_provider(vault_path: Path) -> KeyProvider:
     if IS_WINDOWS:
         return DpapiKeyProvider(vault_path.with_suffix(".key"))
-    return KeyringKeyProvider()
+    if _keyring_usable():
+        return KeyringKeyProvider()
+    return OwnerOnlyFileKeyProvider(vault_path.with_suffix(".key"))
 
 
 def _check_name(name: str) -> str:

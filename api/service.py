@@ -23,6 +23,7 @@ from engine import backtest as backtest_runner
 from engine.context import EngineContext, Mode
 from engine.nautilus.catalog import PackInfo
 from engine.nautilus.node import EngineNode, RunState
+from engine.sample_data import LABEL as SAMPLE_LABEL
 from risk.authority import SYSTEM, NotAuthorized, Permission, Principal
 from risk.killswitch import Trip, TripSource
 from risk.settings import RiskSettingsStore
@@ -54,6 +55,7 @@ class EngineService:
         self.paths = paths
         self._pack_loader = pack_loader
         self._pack: PackInfo | None = None
+        self._pack_lock = threading.Lock()
         self.vault = vault
         self.audit = audit
         self.settings = RiskSettingsStore(
@@ -72,9 +74,22 @@ class EngineService:
     # ----- data pack --------------------------------------------------------------------------
     @property
     def pack(self) -> PackInfo:
+        """The data pack, loaded (and generated on first start) exactly once, thread-safely."""
         if self._pack is None:
-            self._pack = self._pack_loader()
+            with self._pack_lock:
+                if self._pack is None:
+                    self._pack = self._pack_loader()
         return self._pack
+
+    def prepare_pack_in_background(self) -> threading.Thread:
+        """Build/verify the sample pack while the user signs in (first start: ~10 s)."""
+        t = threading.Thread(target=lambda: self.pack, name="pack-prepare", daemon=True)
+        t.start()
+        return t
+
+    @property
+    def pack_ready(self) -> bool:
+        return self._pack is not None
 
     # ----- engine lifecycle -------------------------------------------------------------------
     @property
@@ -271,7 +286,8 @@ class EngineService:
             "mode": self.mode.value,
             "running": self.running,
             "sample_data": True,
-            "data_label": self.pack.label,
+            "data_label": SAMPLE_LABEL,  # the paper/live label arrives with step 1.23
+            "data_ready": self.pack_ready,
             "progress": progress,
             "account": ctx.store.account() if ctx else {},
             "symbols": symbols,

@@ -31,6 +31,7 @@ from engine.events import EconomicEvent, Impact
 from engine.instruments import ACTIVE_ROOTS, SPECS, Contract, front_contract
 
 PACK_VERSION: Final = 2
+LABEL: Final = "SAMPLE DATA - synthetic, generated (not real market prices)"
 DEFAULT_SEED: Final = 20_261_102
 #: Five consecutive CME trade dates (Mon 2026-11-02 .. Fri 2026-11-06) after the DST switch.
 DEFAULT_DATES: Final = (
@@ -97,7 +98,7 @@ class SamplePack:
     events: list[EconomicEvent]
     roots: tuple[str, ...]
     dates: tuple[date, ...]
-    label: str = "SAMPLE DATA - synthetic, generated (not real market prices)"
+    label: str = LABEL
     version: int = PACK_VERSION
     meta: dict[str, str] = field(default_factory=dict)
 
