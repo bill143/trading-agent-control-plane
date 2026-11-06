@@ -178,6 +178,8 @@ def open_window(url: str, rt: Runtime, server: uvicorn.Server) -> None:
     import webview  # noqa: PLC0415 - pywebview; available on Windows and macOS builds
 
     window = webview.create_window(APP_TITLE, url, width=1440, height=920, min_size=(980, 640))
+    if window is None:
+        raise RuntimeError("the application window could not be created (WebView2 missing?)")
     window.events.closed += lambda: setattr(server, "should_exit", True)
     webview.start(private_mode=True, storage_path=str(rt.home / "webview"))
 
