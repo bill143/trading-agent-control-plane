@@ -27,7 +27,7 @@ Status values: **Decided** (from the plan or Bill), **Proposed** (needs Bill's a
 | A-11 | AI roles | Fast numeric models make trade decisions. Language AIs read material, explain, supervise and chat; they never sit in the order path. No AI process can change risk settings. | Decided | Tab 4 |
 | A-12 | V1 AI count | 10 components: 7 core experts + regime detector + coordinator + one language-AI service playing the five language roles. | Decided | Tab 4 |
 | A-13 | Proof ladder | Backtest → walk-forward → locked holdout → 60 trading days of paper → live with approval on 1 contract → fully automatic. | Decided | Tab 1 |
-| A-14 | Target metrics | Profit factor above 1.3; max drawdown inside the prop-firm limit; 200+ test trades per expert before live weight. | Proposed (C0.08 needs Bill's agreement) | Tab 5 |
+| A-14 | Target metrics | Profit factor above 1.3; max drawdown inside the prop-firm limit; 200+ test trades per expert before live weight. | Decided (Bill accepted C0.08, 2026-11-06) | Tab 5 |
 | A-15 | Time handling | All times stored in exchange time (`America/Chicago`) with automatic daylight-saving handling and tests on the switch dates. Status dates are recorded in CT. | Decided | Tab 5 |
 | A-16 | Toolchain | Python `3.13.14` (`.python-version`), Rust `1.97.1` (`rust-toolchain.toml`, matches Nautilus 1.231.0), uv with `uv.lock`. Windows x64 wheels exist for every pinned package. | Decided | step 0.05 |
 
@@ -51,6 +51,21 @@ Rules:
 3. A strategy or expert that is changed after seeing its holdout result needs a new, later
    holdout or goes straight to paper with that fact recorded here.
 
+## B2. Gate 0 green light and conditions (Bill, 2026-11-06)
+
+Gate 0 passed with these conditions, in force until Bill lifts them:
+
+| ID | Condition | Effect on the build |
+|---|---|---|
+| G0-1 | Bill is locked out of GitHub (support case open); the repo cannot be made private and PR #1 cannot be merged yet. | Step 0.01 stays blocked. Phase 1 work continues on `claude/phase-0-setup`, stacked on PR #1. Nothing is merged. |
+| G0-2 | Until Bill confirms the repo is private: no API keys, passwords or account details in any commit. | Enforced by the secrets policy, pre-commit gitleaks and CI history scan. Account IDs, usernames and broker account numbers are treated as secrets too. |
+| G0-3 | Sample data only until the repo is private. | No licensed market data is downloaded or committed. Demo mode runs on the generated sample pack (step 1.03). |
+| G0-4 | C0.01, C0.08, C0.09 accepted by Bill. | Recorded as built in the status block. |
+| G0-5 | C0.02 / C0.03 not needed: no paid developer. | Left unmarked; recorded here as not applicable. |
+| G0-6 | C0.04 / C0.05 (Databento, IBKR paper) are being opened by Bill. | Needed by step 1.23; that step blocks until then. |
+| G0-7 | C0.06 (prop-firm approval) needed before Phase 7. | Phase 7 gate depends on it. |
+| G0-8 | C0.07: the monthly cost estimate goes to Bill before any paid data subscription starts. | Delivered as `docs/COST_ESTIMATE.md` before step 1.23 connects Databento. |
+
 ## C. Tab 5 items: requirement and where it is handled
 
 | Item | Requirement / decision | Status | Handled in |
@@ -67,7 +82,7 @@ Rules:
 | Minimum sample size | No expert goes live with fewer than 200 test trades | Decided (A-14) | C4.09 |
 | Model drift | Live monitoring per expert, drift alerts, retraining schedule | Decided | 6.06 |
 | Paper vs. live gap | Live with approval on 1 contract; compare slippage to paper before scaling | Decided | 7.04, 7.10 |
-| Realistic expectations | Profit factor above 1.3, drawdown inside prop limits | Proposed (A-14) | C0.08 |
+| Realistic expectations | Profit factor above 1.3, drawdown inside prop limits | Decided (A-14) | C0.08 |
 | Speed | Numeric models decide; language AIs explain and supervise | Decided (A-11) | 4.x, 2.05 |
 | Power or internet loss | Stops and targets rest at the broker as bracket orders; server before live | Decided | 1.12, 7.06 |
 | Time zones and DST | Exchange time with automatic DST and switch-date tests | Decided (A-15) | 1.05 |
@@ -79,8 +94,8 @@ Rules:
 | Course material rights | Personal use only; never resold or redistributed | Decided | 3.x |
 | Selling signals / managing money | Futures attorney before offering anything to others | Requires Bill | — |
 | Open-source licence (LGPL-3.0) | Private use is fine; attorney review before any commercial release | Decided | 9.06 |
-| IP and ownership | Contract states Bill owns all code, models, data and documentation | Requires Bill (C0.02) | — |
-| Payment tied to proof | Milestone payments released only when checklist items are shown working | Requires Bill (C0.03) | — |
+| IP and ownership | Contract states Bill owns all code, models, data and documentation | Not needed: no paid developer (Bill, 2026-11-06) | — |
+| Payment tied to proof | Milestone payments released only when checklist items are shown working | Not needed: no paid developer (Bill, 2026-11-06) | — |
 | Ongoing running costs | Monthly cost estimate agreed | Requires Bill (C0.07) | — |
 | Tax records | Journal exports usable by Bill's accountant | Decided | 9.04 |
 | Labeling effort | Labeling plan with hours estimated and owner | Decided | 3.09 – 3.11 |
@@ -95,3 +110,5 @@ Rules:
 | D-01 | 2026-11-05 | One bootstrap commit (README, .gitignore) was pushed directly to `main`. | The repository was empty, so no branch existed to protect or to open a pull request against. All later work goes through pull requests. |
 | D-02 | 2026-11-05 | Added `tools/` (build-status tracker) alongside the step 1.02 layout. | Keeps the HTML status block and BUILD_STATUS.md in sync and enforces the gate rules mechanically. |
 | D-03 | 2026-11-05 | Repository `bill143/trading-agent-control-plane` is currently **public**; step 0.01 requires private. | Changing visibility and branch protection needs the owner's GitHub settings. Step 0.01 stays blocked until Bill makes it private and applies `docs/github/BRANCH_PROTECTION.md`. |
+| D-04 | 2026-11-06 | `fsspec` overridden from 2026.2.0 (pinned by NautilusTrader 1.231.0) to the patched release (`[tool.uv] override-dependencies`). | CVE-2026-104851 / GHSA-27vj-qcqg-25rc (code execution via `ReferenceFileSystem`). Full test suite, including the Nautilus backtest, passes on the override. Remove when Nautilus ships the fix. |
+| D-05 | 2026-11-06 | NautilusTrader's compiled modules have no type stubs; mypy treats them as untyped. | All risk, API and state logic is written in typed pure-Python modules; only `engine/nautilus/` and `strategies/` touch Nautilus types. A test enforces that `risk/` and `api/` never import Nautilus. |

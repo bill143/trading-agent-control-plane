@@ -259,8 +259,8 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
 <!-- BUILDER STATUS: the AI builder edits ONLY the JSON inside this block. Keys: steps use Tab 6 IDs (e.g. "1.04"), checks use Tab 3 IDs (e.g. "C1.04"), gates use phase numbers. -->
 <script id="build-status" type="application/json">
 {
-  "updated": "2026-11-05 20:36 CT",
-  "current_step": "1.01",
+  "updated": "2026-11-06 10:19 CT",
+  "current_step": "1.03",
   "steps": {
     "0.01": {
       "status": "blocked",
@@ -303,6 +303,18 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "date": "2026-11-05 20:36 CT",
       "proof": ".github/workflows/ci.yml on every push and PR: ruff, format, mypy strict, pytest on windows-latest + ubuntu-latest, Windows setup script, pip-audit (hashed lock: no known vulnerabilities), full-history gitleaks (no leaks). All 5 jobs green: https://github.com/bill143/trading-agent-control-plane/actions/runs/42150639421",
       "note": ""
+    },
+    "1.01": {
+      "status": "done",
+      "date": "2026-11-06 10:19 CT",
+      "proof": "nautilus_trader==1.231.0 pinned in pyproject.toml and uv.lock; tests/test_nautilus_install.py: pinned-version test + sample EMA-cross bracket backtest on ESZ6 (fills > 0) passed; full suite 41 passed",
+      "note": ""
+    },
+    "1.02": {
+      "status": "done",
+      "date": "2026-11-06 10:19 CT",
+      "proof": "engine/ (with engine/nautilus/ adapters), risk/, strategies/, api/, app/, tests/, docs/; tests/test_layout.py 7 passed (packages importable and documented, risk/ and api/ Nautilus-free)",
+      "note": ""
     }
   },
   "checks": {
@@ -310,12 +322,23 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px}
       "status": "built",
       "date": "2026-11-05 20:36 CT",
       "proof": "DECISIONS.md section B (development 2022-11-01..2025-10-31; holdout 2025-11-03..2026-10-30) committed in 0eeada3 on 2026-11-05, before any market data was downloaded (none downloaded yet)"
+    },
+    "C0.01": {
+      "status": "built",
+      "date": "2026-11-06 10:15 CT",
+      "proof": "Bill accepted in chat 2026-11-06 (Gate 0 green light)"
+    },
+    "C0.08": {
+      "status": "built",
+      "date": "2026-11-06 10:15 CT",
+      "proof": "Bill accepted in chat 2026-11-06: profit factor above 1.3, max drawdown inside prop-firm limit (DECISIONS.md A-14)"
     }
   },
   "gates": {
     "0": {
-      "status": "awaiting_bill",
-      "date": "2026-11-05 20:36 CT"
+      "status": "passed",
+      "date": "2026-11-06 10:15 CT",
+      "approved_by": "Bill in chat 2026-11-06: 'Gate 0 passed, with conditions' (repo privacy pending GitHub support case; stack on PR #1, do not merge; no keys/account details in commits; sample data only until repo is private)"
     }
   }
 }

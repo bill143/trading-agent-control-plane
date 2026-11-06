@@ -6,12 +6,14 @@ readme = "README.md"
 requires-python = "==3.13.*"
 license = { text = "Proprietary - all rights reserved by the repository owner" }
 dependencies = [
+    "nautilus-trader==1.231.0",
     "tzdata>=2025.2",  # IANA time-zone data; Windows has none built in (CT dates, CME sessions)
 ]
 
 [dependency-groups]
 dev = [
     "mypy>=1.18",
+    "pandas-stubs>=3.1.0.261029",
     "pip-audit>=2.9",
     "pre-commit>=4.3",
     "pytest>=8.4",
@@ -20,6 +22,9 @@ dev = [
 
 [tool.uv]
 package = false
+# NautilusTrader 1.231.0 pins fsspec==2026.2.0, which has CVE-2026-104851 (GHSA-27vj-qcqg-25rc,
+# code execution via ReferenceFileSystem). Override to the fixed release; see DECISIONS.md D-04.
+override-dependencies = ["fsspec>=2026.6.0"]
 required-version = ">=0.11"
 
 [tool.ruff]
@@ -38,7 +43,18 @@ ignore = ["PLR2004", "TRY003"]
 python_version = "3.13"
 strict = true
 warn_unreachable = true
-files = ["tools", "tests"]
+files = ["engine", "risk", "strategies", "api", "app", "tools", "tests"]
+
+[[tool.mypy.overrides]]
+# NautilusTrader is compiled (Cython/Rust) and ships no type stubs. Our own logic lives in typed
+# pure-Python modules; only the thin Nautilus adapter modules touch these types.
+module = ["nautilus_trader.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["engine.nautilus.*", "strategies.*", "tests.*"]
+disallow_subclassing_any = false
+disallow_any_unimported = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
