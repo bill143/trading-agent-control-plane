@@ -1,0 +1,41 @@
+# --- Secrets: never committed (see docs/SECURITY.md) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+vault/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# --- Rust ---
+target/
+
+# --- Market data and run artifacts (large, licensed; never committed) ---
+data/raw/
+data/catalog/
+data/holdout/
+runs/
+logs/
+*.log
+
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
